@@ -1,0 +1,42 @@
+# Example of an N-tier (3+ model) policy. Demonstrates how a third model
+# slots in via a single config edit when its adapter exists.
+# NOTE: requires a haiku model row + (today) the BuiltinAnthropicAdapter; no
+# new code is needed because Haiku is in the Anthropic family.
+version: 1
+name: three-tier-example
+
+models:
+  - id: opus
+    adapter: builtin-anthropic
+    model_name: claude-opus-4-20250514
+    pricing: { input: 15.00, input_cached: 1.50, output: 75.00 }
+    auth: { env: ANTHROPIC_API_KEY }
+  - id: haiku
+    adapter: builtin-anthropic
+    model_name: claude-haiku-4-5
+    pricing: { input: 1.00, input_cached: 0.10, output: 5.00 }
+    auth: { env: ANTHROPIC_API_KEY }
+  - id: gemini-flash
+    adapter: mcp:gemini-flash-server
+    model_name: gemini-2.5-flash
+    pricing: { input: 0.30, input_cached: 0.075, output: 2.50 }
+    auth: { env: GEMINI_API_KEY }
+
+rules:
+  - when: { phase: [requirements_analysis, architecture_design, security_review] }
+    use: opus
+    reason: "Top-tier judgment"
+  - when: { phase: senior_code_review }
+    use: haiku
+    reason: "Mid-tier — more cost-efficient than Opus, stronger than Flash on cross-file reasoning"
+  - when: { phase: [codegen, tests, docs] }
+    use: gemini-flash
+    reason: "Most cost-efficient tier — mechanical work"
+  - when: { phase: debug, retry_count: { gte: 2 } }
+    use: haiku
+    reason: "Escalate Flash misses to Haiku, not all the way to Opus"
+  - when: { phase: debug }
+    use: gemini-flash
+
+  - default: haiku
+    reason: "Sensible mid-tier default"

@@ -1,0 +1,24 @@
+# Aggressive cost optimization — Gemini Flash for everything except security.
+# Useful as a "what-if" comparator: how much would we save if we pushed even
+# review work to cost-efficient tier? Demo highlights the quality trade-off.
+version: 1
+name: cost-extreme
+
+models:
+  - id: opus
+    adapter: builtin-anthropic
+    model_name: claude-opus-4-20250514
+    pricing: { input: 15.00, input_cached: 1.50, output: 75.00 }
+    auth: { env: ANTHROPIC_API_KEY }
+  - id: gemini-flash
+    adapter: mcp:gemini-flash-server
+    model_name: gemini-2.5-flash
+    pricing: { input: 0.30, input_cached: 0.075, output: 2.50 }
+    auth: { env: GEMINI_API_KEY }
+
+rules:
+  - when: { phase: security_review }
+    use: opus
+    reason: "Security-critical — keep premium even in cost-extreme mode"
+  - default: gemini-flash
+    reason: "Everything else on cost-efficient tier"

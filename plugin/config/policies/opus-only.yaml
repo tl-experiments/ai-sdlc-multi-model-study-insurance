@@ -1,0 +1,19 @@
+# Pass 1 baseline — every phase runs on Opus 4.7. No multi-model behavior.
+# Used by /ai-sdlc-pass1 to produce the premium-ceiling baseline cost.
+version: 1
+name: opus-only
+
+models:
+  - id: opus
+    adapter: builtin-anthropic
+    model_name: claude-opus-4-7
+    pricing:
+      input: 15.00         # USD per 1M tokens
+      input_cached: 1.50   # ~90% off after first call (Anthropic prompt cache)
+      output: 75.00
+    auth:
+      env: ANTHROPIC_API_KEY
+
+rules:
+  - default: opus
+    reason: "Pass 1 baseline — single-model, premium tier"

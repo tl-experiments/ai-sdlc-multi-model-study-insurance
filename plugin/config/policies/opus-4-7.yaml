@@ -1,0 +1,18 @@
+# Yotsuba Claims · Pass 1 baseline — author every file with Claude Opus.
+# The premium ceiling. Reference point all other passes compare against.
+version: 1
+name: opus-4-7
+
+models:
+  - id: opus
+    adapter: builtin-anthropic
+    # `claude-opus-4-7` is the user-facing label; substitute to the most-recent
+    # GA Opus on the Anthropic API. Bump this when a real 4-7 ships.
+    model_name: claude-opus-4-5-20250929
+    display_name: claude-opus-4-7
+    pricing: { input: 15.00, input_cached: 1.50, output: 75.00 }
+    auth: { env: ANTHROPIC_API_KEY }
+
+rules:
+  - default: opus
+    reason: "Pass 1 baseline — single-model, premium tier"

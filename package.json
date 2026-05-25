@@ -1,0 +1,18 @@
+{
+  "name": "multi-model-orchestration-poc",
+  "version": "0.1.0",
+  "private": true,
+  "description": "POC root — bundles tooling for synthesizing telemetry, running Pass 2, and scoring with the judge.",
+  "type": "module",
+  "scripts": {
+    "tools:pass1": "node tools/synthesize-pass1-telemetry.mjs",
+    "tools:pass2-sim": "node tools/synthesize-pass2-telemetry.mjs",
+    "tools:pass2-real": "node tools/run-pass2.mjs sample-project/brief.md",
+    "tools:judge": "node tools/run-judge.mjs"
+  },
+  "dependencies": {
+    "yaml": "^2.6.1",
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@google/generative-ai": "^0.21.0"
+  }
+}

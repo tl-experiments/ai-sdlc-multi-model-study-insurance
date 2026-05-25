@@ -1,0 +1,16 @@
+# Yotsuba Claims · Pass 4 — every file authored by Haiku only.
+# The "most aggressive Anthropic-only tier-down" data point.
+version: 1
+name: haiku-4-5
+
+models:
+  - id: haiku
+    adapter: builtin-anthropic
+    model_name: claude-haiku-4-5
+    display_name: claude-haiku-4-5
+    pricing: { input: 0.80, input_cached: 0.08, output: 4.00 }
+    auth: { env: ANTHROPIC_API_KEY }
+
+rules:
+  - default: haiku
+    reason: "Pure Haiku — single-model, lowest-tier Anthropic"

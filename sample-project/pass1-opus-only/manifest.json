@@ -1,0 +1,234 @@
+{
+  "pass": "pass1",
+  "policy_name": "opus-only",
+  "started_at": "2026-05-24T14:05:40.443Z",
+  "ended_at": "2026-05-24T14:15:12.765Z",
+  "duration_sec": 572,
+  "total_cost_usd": 3.49515,
+  "total_input_tokens": 222800,
+  "total_input_tokens_cached": 164400,
+  "total_output_tokens": 31634,
+  "model_breakdown": {
+    "claude-opus-4-20250514": {
+      "calls": 78,
+      "cost_usd": 3.49515,
+      "input_tokens": 222800,
+      "output_tokens": 31634
+    }
+  },
+  "phase_breakdown": {
+    "requirements_analysis": {
+      "calls": 1,
+      "cost_usd": 0.04905,
+      "models": [
+        "claude-opus-4-20250514"
+      ]
+    },
+    "architecture_design": {
+      "calls": 1,
+      "cost_usd": 0.07545,
+      "models": [
+        "claude-opus-4-20250514"
+      ]
+    },
+    "codegen": {
+      "calls": 58,
+      "cost_usd": 2.323125,
+      "models": [
+        "claude-opus-4-20250514"
+      ]
+    },
+    "tests": {
+      "calls": 3,
+      "cost_usd": 0.23655,
+      "models": [
+        "claude-opus-4-20250514"
+      ]
+    },
+    "docs": {
+      "calls": 5,
+      "cost_usd": 0.1218,
+      "models": [
+        "claude-opus-4-20250514"
+      ]
+    },
+    "senior_code_review": {
+      "calls": 9,
+      "cost_usd": 0.6237,
+      "models": [
+        "claude-opus-4-20250514"
+      ]
+    },
+    "security_review": {
+      "calls": 1,
+      "cost_usd": 0.065475,
+      "models": [
+        "claude-opus-4-20250514"
+      ]
+    }
+  },
+  "module_breakdown": {
+    "cross": {
+      "calls": 17,
+      "cost_usd": 0.6795
+    },
+    "app.module.ts": {
+      "calls": 2,
+      "cost_usd": 0.113175
+    },
+    "audit": {
+      "calls": 4,
+      "cost_usd": 0.1389
+    },
+    "auth": {
+      "calls": 8,
+      "cost_usd": 0.286425
+    },
+    "employees": {
+      "calls": 7,
+      "cost_usd": 0.39645
+    },
+    "leave-requests": {
+      "calls": 5,
+      "cost_usd": 0.238575
+    },
+    "prisma.service.ts": {
+      "calls": 2,
+      "cost_usd": 0.088875
+    },
+    "reports": {
+      "calls": 4,
+      "cost_usd": 0.186525
+    },
+    "time-entries": {
+      "calls": 6,
+      "cost_usd": 0.22785
+    },
+    "web": {
+      "calls": 22,
+      "cost_usd": 1.04475
+    },
+    "leave": {
+      "calls": 1,
+      "cost_usd": 0.094125
+    }
+  },
+  "task_type_breakdown": {
+    "analysis": {
+      "calls": 1,
+      "cost_usd": 0.04905
+    },
+    "design": {
+      "calls": 1,
+      "cost_usd": 0.07545
+    },
+    "prisma_schema": {
+      "calls": 1,
+      "cost_usd": 0.058725
+    },
+    "seed_data": {
+      "calls": 1,
+      "cost_usd": 0.06465
+    },
+    "module_wiring": {
+      "calls": 7,
+      "cost_usd": 0.173775
+    },
+    "controller_handler": {
+      "calls": 6,
+      "cost_usd": 0.24765
+    },
+    "service_method": {
+      "calls": 9,
+      "cost_usd": 0.450375
+    },
+    "dto": {
+      "calls": 6,
+      "cost_usd": 0.1401
+    },
+    "interceptor": {
+      "calls": 1,
+      "cost_usd": 0.040575
+    },
+    "decorator": {
+      "calls": 2,
+      "cost_usd": 0.037275
+    },
+    "filter": {
+      "calls": 1,
+      "cost_usd": 0.032475
+    },
+    "guard": {
+      "calls": 2,
+      "cost_usd": 0.06255
+    },
+    "middleware": {
+      "calls": 1,
+      "cost_usd": 0.0204
+    },
+    "bootstrap": {
+      "calls": 1,
+      "cost_usd": 0.035625
+    },
+    "frontend_html": {
+      "calls": 1,
+      "cost_usd": 0.01965
+    },
+    "frontend_config": {
+      "calls": 7,
+      "cost_usd": 0.154275
+    },
+    "react_page": {
+      "calls": 8,
+      "cost_usd": 0.57165
+    },
+    "react_component": {
+      "calls": 3,
+      "cost_usd": 0.1161
+    },
+    "api_client": {
+      "calls": 1,
+      "cost_usd": 0.097275
+    },
+    "test_integration": {
+      "calls": 3,
+      "cost_usd": 0.23655
+    },
+    "readme_section": {
+      "calls": 2,
+      "cost_usd": 0.0501
+    },
+    "adr_draft": {
+      "calls": 3,
+      "cost_usd": 0.0717
+    },
+    "code_review": {
+      "calls": 9,
+      "cost_usd": 0.6237
+    },
+    "review": {
+      "calls": 1,
+      "cost_usd": 0.065475
+    }
+  },
+  "artifacts": {
+    "files": 69,
+    "loc": 0,
+    "tests": 10,
+    "test_pass_rate": 1,
+    "build_ok": true,
+    "ts_errors": 0,
+    "tests_passed": 10,
+    "tests_failed": 0
+  },
+  "quality_scores": {
+    "correctness": 4.5,
+    "test_coverage": 5,
+    "security_posture": 4.5,
+    "documentation": 4,
+    "code_style": 5,
+    "_build_ok": true,
+    "_test_pass_rate": 1,
+    "_notes": "Heuristic — build_ok=true, test_pass_rate=100%, files=36."
+  }
+}

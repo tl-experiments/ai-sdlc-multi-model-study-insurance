@@ -1,0 +1,23 @@
+{
+  "name": "multi-model-orchestrator",
+  "version": "0.1.0",
+  "description": "Injectable multi-model SDLC orchestration. Routes premium-judgment work to Claude Opus and high-volume mechanical work to Gemini 2.5 Flash (and other configurable adapters) for 60%+ cost reduction at quality parity.",
+  "author": "Tilicho / multi-model-orchestrator POC",
+  "license": "Proprietary",
+  "homepage": "https://example.com/multi-model-orchestrator",
+  "keywords": ["sdlc", "orchestration", "multi-model", "cost-optimization", "gemini", "opus"],
+  "agents": ["./agents"],
+  "commands": ["./commands"],
+  "skills": ["./skills"],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": {
+    "gemini-flash-server": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/gemini-flash-server/dist/server.js"],
+      "env": {
+        "GEMINI_API_KEY": "${GEMINI_API_KEY}",
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}"
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+# Source maps + reports we don't want in the deploy
+node_modules
+.vite
+dist
+*.log

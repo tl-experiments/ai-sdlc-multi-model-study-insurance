@@ -1,0 +1,79 @@
+# Pass 2 — premium-judgment on Opus 4.7, cost-efficient mechanical work on Gemini 3.1 Pro.
+# Pro is the mid-tier alternative: stronger than Flash on cross-file reasoning,
+# cheaper than Opus by roughly an order of magnitude.
+#
+# NOTE: gemini-3.1-pro is the requested model ID; current API substitutes
+# gemini-2.5-pro (see passes.json `model_substitutions`).
+version: 1
+name: opus-plus-pro
+
+models:
+  - id: opus
+    adapter: builtin-anthropic
+    model_name: claude-opus-4-7
+    pricing: { input: 15.00, input_cached: 1.50, output: 75.00 }
+    auth: { env: ANTHROPIC_API_KEY }
+  - id: gemini-pro
+    adapter: mcp:gemini-flash-server   # same MCP adapter; only the model_name changes
+    model_name: gemini-2.5-pro         # actual API model (3.1-pro not yet GA)
+    display_name: gemini-3.1-pro       # what the dashboard shows
+    pricing: { input: 1.25, input_cached: 0.3125, output: 10.00 }
+    auth: { env: GEMINI_API_KEY }
+
+rules:
+  # Premium-judgment phases — stay on Opus
+  - when: { phase: requirements_analysis }
+    use: opus
+    reason: "Judgment-heavy, low volume — premium"
+  - when: { phase: architecture_design }
+    use: opus
+    reason: "Foundational, decision-bearing — premium"
+  - when: { phase: plan_task_packets }
+    use: opus
+    reason: "Needs full context to slice work cleanly — premium"
+  - when: { phase: senior_code_review }
+    use: opus
+    reason: "Cross-file reasoning + judgment — premium"
+  - when: { phase: security_review }
+    use: opus
+    reason: "Risk-bearing, low volume — premium"
+
+  # High-volume mechanical phases — Gemini Pro (still capable, much cheaper than Opus)
+  - when:
+      phase: codegen
+      task_type:
+        - controller_handler
+        - service_method
+        - dto
+        - module_wiring
+        - migration
+        - seed_data
+        - entity
+        - guard
+        - interceptor
+        - filter
+        - react_component
+        - react_page
+        - api_client
+        - frontend_util
+        - frontend_config
+        - frontend_html
+    use: gemini-pro
+    reason: "Schema-driven boilerplate — Pro handles cross-file dependencies well at lower cost than Opus"
+  - when: { phase: tests }
+    use: gemini-pro
+    reason: "Scaffold-heavy, pattern-based — cost-efficient tier"
+  - when: { phase: docs }
+    use: gemini-pro
+    reason: "Volume work — cost-efficient tier"
+
+  # Debug with escalation: try cost-efficient first, escalate to Opus after 2 retries
+  - when: { phase: debug, retry_count: { gte: 2 } }
+    use: opus
+    reason: "Escalation: 2 cost-efficient tier attempts failed"
+  - when: { phase: debug }
+    use: gemini-pro
+    reason: "Most debugs have clear cause — cost-efficient tier"
+
+  - default: opus
+    reason: "Unrecognized task — fail safe to premium"

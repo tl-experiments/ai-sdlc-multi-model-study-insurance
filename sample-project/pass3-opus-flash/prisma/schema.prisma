@@ -1,0 +1,88 @@
+// Prisma schema — Workforce Operations Service
+// PII columns suffixed _ct hold AES-256-GCM ciphertext (base64).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Employee {
+  id               String    @id @default(cuid())
+  username         String    @unique
+  password_hash    String
+  role             String
+  reports_to_id    String?
+  reports_to       Employee? @relation("Reports", fields: [reports_to_id], references: [id])
+  reports          Employee[] @relation("Reports")
+  full_name        String
+  email            String
+  phone            String?
+  address          String?
+  government_id_ct String?
+  bank_account_ct  String?
+  salary_base_ct   String?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  deleted_at       DateTime?
+
+  time_entries     TimeEntry[]
+  leave_requests   LeaveRequest[]
+  leave_balances   LeaveBalance[]
+}
+
+model TimeEntry {
+  id              String    @id @default(cuid())
+  employee_id     String
+  employee        Employee  @relation(fields: [employee_id], references: [id])
+  project_tag     String
+  clock_in_at     DateTime
+  clock_out_at    DateTime?
+  approval_status String    @default("approved")
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  @@index([employee_id, clock_in_at])
+}
+
+model LeaveRequest {
+  id          String   @id @default(cuid())
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id])
+  leave_type  String
+  from_date   DateTime
+  to_date     DateTime
+  status      String   @default("pending")
+  decided_by  String?
+  comments    String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([employee_id, status])
+}
+
+model LeaveBalance {
+  id          String   @id @default(cuid())
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id])
+  leave_type  String
+  balance     Int
+
+  @@unique([employee_id, leave_type])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actor_id   String
+  action     String
+  target_id  String?
+  fields     String
+  request_id String
+  ts         DateTime @default(now())
+
+  @@index([actor_id, ts])
+  @@index([target_id, ts])
+}

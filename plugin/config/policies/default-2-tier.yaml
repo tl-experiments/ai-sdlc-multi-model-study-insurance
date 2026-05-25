@@ -1,0 +1,75 @@
+# Pass 2 default — premium work on Opus, mechanical work on Gemini Flash.
+# This is the policy the recording demos by default.
+version: 1
+name: default-2-tier
+
+models:
+  - id: opus
+    adapter: builtin-anthropic
+    model_name: claude-opus-4-20250514
+    pricing: { input: 15.00, input_cached: 1.50, output: 75.00 }
+    auth: { env: ANTHROPIC_API_KEY }
+  - id: gemini-flash
+    adapter: mcp:gemini-flash-server
+    model_name: gemini-2.5-flash
+    pricing: { input: 0.30, input_cached: 0.075, output: 2.50 }
+    auth: { env: GEMINI_API_KEY }
+
+rules:
+  # Premium-judgment phases — stay on Opus
+  - when: { phase: requirements_analysis }
+    use: opus
+    reason: "Judgment-heavy, low volume — premium"
+  - when: { phase: architecture_design }
+    use: opus
+    reason: "Foundational, decision-bearing — premium"
+  - when: { phase: plan_task_packets }
+    use: opus
+    reason: "Needs full context to slice work cleanly — premium"
+  - when: { phase: senior_code_review }
+    use: opus
+    reason: "Cross-file reasoning + judgment — premium"
+  - when: { phase: security_review }
+    use: opus
+    reason: "Risk-bearing, low volume — premium"
+
+  # High-volume mechanical phases — Gemini Flash
+  - when:
+      phase: codegen
+      task_type:
+        - controller_handler
+        - service_method
+        - dto
+        - module_wiring
+        - migration
+        - seed_data
+        - entity
+        - guard
+        - interceptor
+        - filter
+        # Frontend codegen task_types — same routing principle, larger volume
+        - react_component
+        - react_page
+        - api_client
+        - frontend_util
+        - frontend_config
+        - frontend_html
+    use: gemini-flash
+    reason: "Schema-driven boilerplate — cost-efficient tier"
+  - when: { phase: tests }
+    use: gemini-flash
+    reason: "Scaffold-heavy, pattern-based — cost-efficient tier"
+  - when: { phase: docs }
+    use: gemini-flash
+    reason: "Volume work — cost-efficient tier"
+
+  # Debug with escalation: try cost-efficient tier first, escalate to Opus after 2 retries
+  - when: { phase: debug, retry_count: { gte: 2 } }
+    use: opus
+    reason: "Escalation: 2 cost-efficient tier attempts failed"
+  - when: { phase: debug }
+    use: gemini-flash
+    reason: "Most debugs have clear cause — cost-efficient tier"
+
+  - default: opus
+    reason: "Unrecognized task — fail safe to premium"

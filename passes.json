@@ -1,0 +1,45 @@
+{
+  "_comment": "Single source of truth for the 3 passes. Tools and dashboard read from this. Order matters — index 0 is Pass 1 (baseline).",
+  "passes": [
+    {
+      "id": "pass1",
+      "label": "Pass 1: Opus only",
+      "shortLabel": "Opus only",
+      "directory": "sample-project/pass1-opus-only",
+      "policy": "opus-only",
+      "apiPort": 3000,
+      "webPort": 5174,
+      "headerColor": "violet",
+      "description": "Baseline — every phase runs on Claude Opus 4.7. The premium ceiling."
+    },
+    {
+      "id": "pass2",
+      "label": "Pass 2: Opus + Gemini Pro",
+      "shortLabel": "Opus + Gemini Pro",
+      "directory": "sample-project/pass2-opus-pro",
+      "policy": "opus-plus-pro",
+      "apiPort": 3001,
+      "webPort": 5175,
+      "headerColor": "blue",
+      "description": "Mid-tier orchestration — premium-judgment phases on Opus, cost-efficient phases on Gemini 3.1 Pro."
+    },
+    {
+      "id": "pass3",
+      "label": "Pass 3: Opus + Gemini Flash",
+      "shortLabel": "Opus + Gemini Flash",
+      "directory": "sample-project/pass3-opus-flash",
+      "policy": "opus-plus-flash",
+      "apiPort": 3002,
+      "webPort": 5176,
+      "headerColor": "cyan",
+      "description": "Aggressive cost optimization — premium phases on Opus, cost-efficient phases on Gemini 3.5 Flash."
+    }
+  ],
+  "model_substitutions": {
+    "_comment": "Where a user-requested model ID is not yet GA on the API, we substitute the closest available and label here. The dashboard renders the requested ID with a small badge noting the substitution.",
+    "gemini-3.1-pro": {
+      "actual_api_model": "gemini-2.5-pro",
+      "reason": "gemini-3.1-pro not GA as of 2026-05-24; gemini-2.5-pro is the closest production-available Pro-tier model."
+    }
+  }
+}

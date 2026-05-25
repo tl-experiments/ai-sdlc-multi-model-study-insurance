@@ -1,0 +1,82 @@
+# Yotsuba Claims · Pass 5 — premium-judgment phases on Opus 4.7,
+# cost-efficient mechanical work on Gemini 3.1 Pro (mid-tier Gemini).
+# Stronger cross-file reasoning than Flash; pricier than Flash; still cheaper than Opus.
+version: 1
+name: opus-4-7-with-gemini-3-1-pro
+
+models:
+  - id: opus
+    adapter: builtin-anthropic
+    model_name: claude-opus-4-5-20250929
+    display_name: claude-opus-4-7
+    pricing: { input: 15.00, input_cached: 1.50, output: 75.00 }
+    auth: { env: ANTHROPIC_API_KEY }
+  - id: gemini-pro
+    adapter: mcp:gemini-flash-server
+    model_name: gemini-2.5-pro
+    display_name: gemini-3.1-pro
+    pricing: { input: 1.25, input_cached: 0.3125, output: 10.00 }
+    auth: { env: GEMINI_API_KEY }
+
+rules:
+  - when: { phase: requirements_analysis }
+    use: opus
+    reason: "Judgment-heavy, low volume"
+  - when: { phase: architecture_design }
+    use: opus
+    reason: "Foundational, decision-bearing"
+  - when: { phase: plan_task_packets }
+    use: opus
+    reason: "Needs full context"
+  - when: { phase: senior_code_review }
+    use: opus
+    reason: "Cross-file reasoning"
+  - when: { phase: security_review }
+    use: opus
+    reason: "Risk-bearing, low volume"
+
+  - when:
+      phase: codegen
+      task_type:
+        - controller_handler
+        - service_method
+        - dto
+        - module_wiring
+        - migration
+        - seed_data
+        - entity
+        - guard
+        - interceptor
+        - filter
+        - decorator
+        - fsm
+        - prisma_schema
+        - project_config
+        - test_config
+        - react_component
+        - react_page
+        - api_client
+        - frontend_util
+        - frontend_config
+        - frontend_html
+        - frontend_other
+        - bootstrap
+    use: gemini-pro
+    reason: "Schema-driven boilerplate — Pro handles cross-file deps well at lower cost than Opus"
+
+  - when: { phase: tests }
+    use: gemini-pro
+    reason: "Scaffold-heavy"
+  - when: { phase: docs }
+    use: gemini-pro
+    reason: "Volume work"
+
+  - when: { phase: debug, retry_count: { gte: 2 } }
+    use: opus
+    reason: "Escalation after 2 retries"
+  - when: { phase: debug }
+    use: gemini-pro
+    reason: "Most debugs have clear cause"
+
+  - default: opus
+    reason: "Unrecognized task — fail safe to premium"

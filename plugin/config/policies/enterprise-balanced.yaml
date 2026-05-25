@@ -1,0 +1,44 @@
+# Enterprise-balanced — like default-2-tier, but with module-level overrides
+# that pin sensitive modules (auth, audit) to Opus regardless of phase.
+# Demonstrates how a policy can enforce per-module security posture.
+version: 1
+name: enterprise-balanced
+
+models:
+  - id: opus
+    adapter: builtin-anthropic
+    model_name: claude-opus-4-20250514
+    pricing: { input: 15.00, input_cached: 1.50, output: 75.00 }
+    auth: { env: ANTHROPIC_API_KEY }
+  - id: gemini-flash
+    adapter: mcp:gemini-flash-server
+    model_name: gemini-2.5-flash
+    pricing: { input: 0.30, input_cached: 0.075, output: 2.50 }
+    auth: { env: GEMINI_API_KEY }
+
+rules:
+  # Module-level sensitivity overrides — these win because they come first
+  - when: { module: auth }
+    use: opus
+    reason: "Auth code — never on cost-efficient tier"
+  - when: { module: audit }
+    use: opus
+    reason: "Audit log integrity is non-negotiable — premium"
+
+  # Premium phases
+  - when: { phase: [requirements_analysis, architecture_design, plan_task_packets,
+                    senior_code_review, security_review] }
+    use: opus
+    reason: "Premium-judgment phase"
+
+  # Cost-efficient tier rest
+  - when: { phase: [codegen, tests, docs] }
+    use: gemini-flash
+    reason: "Standard mechanical work"
+  - when: { phase: debug, retry_count: { gte: 2 } }
+    use: opus
+    reason: "Escalation after 2 failures"
+  - when: { phase: debug }
+    use: gemini-flash
+
+  - default: opus

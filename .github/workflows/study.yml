@@ -1,0 +1,114 @@
+name: Study — reproducibility check
+
+# Re-runs the verifier on a tiny slice of each pass on every push. Proves the
+# study pipeline is still re-runnable — the single most important continuous
+# credibility signal for a public study.
+#
+# This workflow does NOT call paid LLM APIs. It only:
+#   1. Re-installs the pass's npm deps
+#   2. Runs the build step
+#   3. Re-runs the verifier (npm test, build_ok, test_pass_rate)
+# against the artifacts already committed to the repo.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Weekly heartbeat so a quietly-broken build is caught even without commits.
+  schedule:
+    - cron: "0 6 * * 1"   # Mondays 06:00 UTC
+
+jobs:
+  detect-passes:
+    name: Discover passes from studies.json
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: set
+        name: Build matrix of (study, pass) pairs to verify
+        run: |
+          # The matrix is built from studies.json. Each pass that has artifacts
+          # checked into the repo is a candidate; passes with no artifacts (yet)
+          # are skipped to avoid spurious failures.
+          node - <<'JS'
+          const fs = require("fs");
+          const path = require("path");
+          const cfg = JSON.parse(fs.readFileSync("studies.json", "utf8"));
+          const items = [];
+          for (const s of cfg.studies || []) {
+            for (const p of s.passes || []) {
+              const dir = path.join("case-studies", s.id + "-platform", "passes", p.id);
+              const alt = path.join("sample-project", p.directory || "");
+              const exists = fs.existsSync(dir) || fs.existsSync(alt);
+              if (!exists) continue;
+              items.push({ study: s.id, pass: p.id });
+            }
+          }
+          if (items.length === 0) items.push({ study: "_none_", pass: "_none_" });
+          const matrix = { include: items };
+          fs.writeFileSync(process.env.GITHUB_OUTPUT, "matrix=" + JSON.stringify(matrix) + "\n", { flag: "a" });
+          console.log("matrix:", JSON.stringify(matrix, null, 2));
+          JS
+
+  verify:
+    name: Verify ${{ matrix.study }} / ${{ matrix.pass }}
+    needs: detect-passes
+    if: needs.detect-passes.outputs.matrix != ''
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.detect-passes.outputs.matrix) }}
+    steps:
+      - if: matrix.study == '_none_'
+        run: |
+          echo "No passes detected — nothing to verify."
+          exit 0
+
+      - uses: actions/checkout@v4
+        if: matrix.study != '_none_'
+
+      - uses: actions/setup-node@v4
+        if: matrix.study != '_none_'
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install root deps
+        if: matrix.study != '_none_'
+        run: npm ci --no-audit --no-fund
+
+      - name: Run verifier (limit=3 — fast slice, no API calls)
+        if: matrix.study != '_none_'
+        run: |
+          node tools/verify.mjs \
+            --study=${{ matrix.study }} \
+            --pass=${{ matrix.pass }} \
+            --limit=3
+
+      - name: Upload verifier output
+        if: matrix.study != '_none_' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-${{ matrix.study }}-${{ matrix.pass }}
+          path: |
+            case-studies/**/manifests/**
+            case-studies/**/passes/**/manifest.json
+            sample-project/**/manifest.json
+          retention-days: 14
+          if-no-files-found: warn
+
+  summary:
+    name: Reproducibility summary
+    needs: [verify]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Status
+        run: |
+          echo "Study verifier ran across the matrix."
+          echo "See the verify job logs for per-pass build_ok / test_pass_rate."
+          echo "Dashboard will surface the green-check badge once this workflow succeeds on main."

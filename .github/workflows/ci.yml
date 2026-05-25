@@ -1,0 +1,90 @@
+name: CI
+
+# Lints + builds the dashboard on every push and PR. Fast (<2 min) so we can
+# require it before merge without slowing the loop.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  dashboard-build:
+    name: Dashboard — install + build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            dashboard/package-lock.json
+
+      - name: Install root deps
+        run: npm ci --no-audit --no-fund
+
+      - name: Install dashboard deps
+        working-directory: dashboard
+        run: npm ci --no-audit --no-fund
+
+      - name: Prepare data (copies manifests into dashboard/public/data/)
+        working-directory: dashboard
+        run: npm run prepare-data
+
+      - name: Build dashboard
+        working-directory: dashboard
+        run: npm run build
+
+      - name: Upload built dashboard
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-dist
+          path: dashboard/dist
+          retention-days: 7
+
+  mcp-server-build:
+    name: MCP server — compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: plugin/mcp/gemini-flash-server/package-lock.json
+
+      - name: Install
+        working-directory: plugin/mcp/gemini-flash-server
+        run: npm ci --no-audit --no-fund
+
+      - name: TypeScript compile
+        working-directory: plugin/mcp/gemini-flash-server
+        run: npm run build
+
+  secrets-scan:
+    name: Secrets — no .env committed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail if a .env file is committed
+        run: |
+          if git ls-files | grep -E '(^|/)\.env$' > /dev/null; then
+            echo "::error::A .env file is committed. Remove it and rotate any keys it contained."
+            git ls-files | grep -E '(^|/)\.env$'
+            exit 1
+          fi
+
+      - name: Fail on accidentally-committed Anthropic/Google keys
+        run: |
+          # Look for common credential prefixes in non-binary tracked files.
+          # The pattern is conservative; expand as you find new false positives.
+          if git grep -nE 'sk-ant-api03-[A-Za-z0-9_\-]{40,}|AIza[0-9A-Za-z\-_]{35,}|github_pat_[A-Za-z0-9_]{30,}' -- ':(exclude)*.md' ':(exclude)REPRODUCING.md' ':(exclude)PHASE2-RUNBOOK.md'; then
+            echo "::error::Detected a likely API key or PAT in tracked source. Remove it and rotate the key."
+            exit 1
+          fi

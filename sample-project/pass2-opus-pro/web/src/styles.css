@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn        { @apply px-4 py-2 rounded-md font-medium text-sm transition; }
+  .btn-primary{ @apply btn bg-brand-600 text-white hover:bg-brand-700; }
+  .btn-ghost  { @apply btn bg-white border border-slate-200 hover:bg-slate-50 text-slate-700; }
+  .btn-danger { @apply btn bg-rose-600 text-white hover:bg-rose-700; }
+  .input      { @apply w-full px-3 py-2 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-500; }
+  .card       { @apply bg-white rounded-xl shadow-sm border border-slate-200 p-5; }
+  .label      { @apply text-xs uppercase tracking-wider text-slate-500 font-medium; }
+  .pill       { @apply inline-block px-2 py-0.5 rounded text-xs font-medium; }
+  .pill-admin { @apply pill bg-rose-100 text-rose-800; }
+  .pill-manager { @apply pill bg-amber-100 text-amber-800; }
+  .pill-employee { @apply pill bg-blue-100 text-blue-800; }
+  .pill-auditor { @apply pill bg-slate-200 text-slate-800; }
+  .pill-pii-masked  { @apply pill bg-slate-100 text-slate-500; }
+  .pill-pii-cleartext { @apply pill bg-emerald-100 text-emerald-800; }
+}
+
+html, body, #root { height: 100%; }

@@ -1,0 +1,81 @@
+# Yotsuba Claims · Pass 2 — premium-judgment phases on Opus 4.7,
+# cost-efficient mechanical work on Gemini 3.5 Flash. The headline pass.
+version: 1
+name: opus-4-7-with-gemini-3-5-flash
+
+models:
+  - id: opus
+    adapter: builtin-anthropic
+    model_name: claude-opus-4-5-20250929
+    display_name: claude-opus-4-7
+    pricing: { input: 15.00, input_cached: 1.50, output: 75.00 }
+    auth: { env: ANTHROPIC_API_KEY }
+  - id: gemini-flash
+    adapter: mcp:gemini-flash-server
+    model_name: gemini-3.5-flash
+    display_name: gemini-3.5-flash
+    pricing: { input: 0.30, input_cached: 0.075, output: 2.50 }
+    auth: { env: GEMINI_API_KEY }
+
+rules:
+  - when: { phase: requirements_analysis }
+    use: opus
+    reason: "Judgment-heavy, low volume"
+  - when: { phase: architecture_design }
+    use: opus
+    reason: "Foundational, decision-bearing"
+  - when: { phase: plan_task_packets }
+    use: opus
+    reason: "Needs full context"
+  - when: { phase: senior_code_review }
+    use: opus
+    reason: "Cross-file reasoning"
+  - when: { phase: security_review }
+    use: opus
+    reason: "Risk-bearing, low volume"
+
+  - when:
+      phase: codegen
+      task_type:
+        - controller_handler
+        - service_method
+        - dto
+        - module_wiring
+        - migration
+        - seed_data
+        - entity
+        - guard
+        - interceptor
+        - filter
+        - decorator
+        - fsm
+        - prisma_schema
+        - project_config
+        - test_config
+        - react_component
+        - react_page
+        - api_client
+        - frontend_util
+        - frontend_config
+        - frontend_html
+        - frontend_other
+        - bootstrap
+    use: gemini-flash
+    reason: "Schema-driven boilerplate — cost-efficient tier"
+
+  - when: { phase: tests }
+    use: gemini-flash
+    reason: "Scaffold-heavy, pattern-based"
+  - when: { phase: docs }
+    use: gemini-flash
+    reason: "Volume work"
+
+  - when: { phase: debug, retry_count: { gte: 2 } }
+    use: opus
+    reason: "Escalation after 2 retries"
+  - when: { phase: debug }
+    use: gemini-flash
+    reason: "Most debugs have clear cause"
+
+  - default: opus
+    reason: "Unrecognized task — fail safe to premium"

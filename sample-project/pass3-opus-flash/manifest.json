@@ -1,0 +1,242 @@
+{
+  "pass": "pass3",
+  "pass_label": "Pass 3: Opus + Gemini Flash",
+  "policy_name": "opus-plus-flash",
+  "started_at": "2026-05-24T15:07:53.131Z",
+  "ended_at": "2026-05-24T15:15:13.894Z",
+  "duration_sec": 441,
+  "total_cost_usd": 0.381972,
+  "total_input_tokens": 157340,
+  "total_input_tokens_cached": 106904,
+  "total_output_tokens": 33817,
+  "model_breakdown": {
+    "gemini-3.5-flash": {
+      "calls": 61,
+      "cost_usd": 0.098772,
+      "input_tokens": 134940,
+      "output_tokens": 31353
+    },
+    "claude-opus-4-7": {
+      "calls": 8,
+      "cost_usd": 0.2832,
+      "input_tokens": 22400,
+      "output_tokens": 2464
+    }
+  },
+  "phase_breakdown": {
+    "docs": {
+      "calls": 5,
+      "cost_usd": 0.005362,
+      "models": [
+        "gemini-3.5-flash"
+      ]
+    },
+    "architecture_design": {
+      "calls": 1,
+      "cost_usd": 0.05295,
+      "models": [
+        "claude-opus-4-7"
+      ]
+    },
+    "codegen": {
+      "calls": 58,
+      "cost_usd": 0.235249,
+      "models": [
+        "claude-opus-4-7",
+        "gemini-3.5-flash"
+      ]
+    },
+    "requirements_analysis": {
+      "calls": 1,
+      "cost_usd": 0.04335,
+      "models": [
+        "claude-opus-4-7"
+      ]
+    },
+    "security_review": {
+      "calls": 1,
+      "cost_usd": 0.035475,
+      "models": [
+        "claude-opus-4-7"
+      ]
+    },
+    "tests": {
+      "calls": 3,
+      "cost_usd": 0.009586,
+      "models": [
+        "gemini-3.5-flash"
+      ]
+    }
+  },
+  "module_breakdown": {
+    "cross": {
+      "calls": 17,
+      "cost_usd": 0.29663
+    },
+    "app.module.ts": {
+      "calls": 1,
+      "cost_usd": 0.001584
+    },
+    "audit": {
+      "calls": 3,
+      "cost_usd": 0.002192
+    },
+    "auth": {
+      "calls": 7,
+      "cost_usd": 0.007086
+    },
+    "employees": {
+      "calls": 6,
+      "cost_usd": 0.012757
+    },
+    "leave-requests": {
+      "calls": 4,
+      "cost_usd": 0.006301
+    },
+    "prisma.service.ts": {
+      "calls": 1,
+      "cost_usd": 0.000521
+    },
+    "reports": {
+      "calls": 3,
+      "cost_usd": 0.004517
+    },
+    "time-entries": {
+      "calls": 5,
+      "cost_usd": 0.005671
+    },
+    "leave": {
+      "calls": 1,
+      "cost_usd": 0.0039
+    },
+    "web": {
+      "calls": 21,
+      "cost_usd": 0.040813
+    }
+  },
+  "task_type_breakdown": {
+    "readme_section": {
+      "calls": 2,
+      "cost_usd": 0.002781
+    },
+    "design": {
+      "calls": 1,
+      "cost_usd": 0.05295
+    },
+    "adr_draft": {
+      "calls": 3,
+      "cost_usd": 0.002581
+    },
+    "prisma_schema": {
+      "calls": 1,
+      "cost_usd": 0.058125
+    },
+    "seed_data": {
+      "calls": 1,
+      "cost_usd": 0.002942
+    },
+    "analysis": {
+      "calls": 1,
+      "cost_usd": 0.04335
+    },
+    "review": {
+      "calls": 1,
+      "cost_usd": 0.035475
+    },
+    "module_wiring": {
+      "calls": 7,
+      "cost_usd": 0.005069
+    },
+    "controller_handler": {
+      "calls": 6,
+      "cost_usd": 0.009695
+    },
+    "service_method": {
+      "calls": 9,
+      "cost_usd": 0.017747
+    },
+    "dto": {
+      "calls": 6,
+      "cost_usd": 0.004333
+    },
+    "interceptor": {
+      "calls": 1,
+      "cost_usd": 0.001441
+    },
+    "decorator": {
+      "calls": 2,
+      "cost_usd": 0.037275
+    },
+    "filter": {
+      "calls": 1,
+      "cost_usd": 0.001158
+    },
+    "guard": {
+      "calls": 2,
+      "cost_usd": 0.001961
+    },
+    "middleware": {
+      "calls": 1,
+      "cost_usd": 0.0204
+    },
+    "bootstrap": {
+      "calls": 1,
+      "cost_usd": 0.035625
+    },
+    "test_integration": {
+      "calls": 3,
+      "cost_usd": 0.009586
+    },
+    "frontend_html": {
+      "calls": 1,
+      "cost_usd": 0.000596
+    },
+    "frontend_config": {
+      "calls": 7,
+      "cost_usd": 0.005429
+    },
+    "react_page": {
+      "calls": 8,
+      "cost_usd": 0.024912
+    },
+    "react_component": {
+      "calls": 3,
+      "cost_usd": 0.004347
+    },
+    "api_client": {
+      "calls": 1,
+      "cost_usd": 0.004194
+    }
+  },
+  "artifacts": {
+    "files": 69,
+    "loc": 0,
+    "tests": 10,
+    "test_pass_rate": 1,
+    "build_ok": true,
+    "ts_errors": 0,
+    "tests_passed": 10,
+    "tests_failed": 0
+  },
+  "synthesized": false,
+  "live_run": {
+    "packets": 61,
+    "cost_usd": 0.098772,
+    "at": "2026-05-24T15:15:13.963Z"
+  },
+  "regenerated_from_gemini": {
+    "count": 61,
+    "fail": 0,
+    "attempted": 69
+  },
+  "quality_scores": {
+    "correctness": 4.5,
+    "test_coverage": 5,
+    "security_posture": 4.5,
+    "documentation": 4,
+    "code_style": 5,
+    "_build_ok": true,
+    "_test_pass_rate": 1,
+    "_notes": "Heuristic — build_ok=true, test_pass_rate=100%, files=36."
+  }
+}

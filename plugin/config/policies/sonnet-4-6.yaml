@@ -1,0 +1,17 @@
+# Yotsuba Claims · Pass 3 — every file authored by Sonnet only.
+# Pure-Anthropic tier-down comparison: "even without Gemini you save by tier-down."
+version: 1
+name: sonnet-4-6
+
+models:
+  - id: sonnet
+    adapter: builtin-anthropic
+    # `claude-sonnet-4-6` labeled; substitute to latest shipping Sonnet.
+    model_name: claude-sonnet-4-5-20250929
+    display_name: claude-sonnet-4-6
+    pricing: { input: 3.00, input_cached: 0.30, output: 15.00 }
+    auth: { env: ANTHROPIC_API_KEY }
+
+rules:
+  - default: sonnet
+    reason: "Pure Sonnet — single-model, mid-tier Anthropic"
