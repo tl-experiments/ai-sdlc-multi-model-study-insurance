@@ -18,6 +18,10 @@
  *     [--dry-run]            (prints planned TaskPackets, makes no API calls)
  *     [--resume]             (skip files that already exist in the target)
  *     [--start-at=<path>]    (skip until this file path; useful for resume after fixes)
+ *     [--smoke]              (author ONE small file end-to-end into a .smoke-test/
+ *                             subdir; ~$0.50, ~30s — validates API key, model
+ *                             availability, adapter wiring, and JSON envelope
+ *                             before committing to a multi-hour run)
  *
  * Outputs:
  *   case-studies/<study>/passes/<policy>/<file>           (the authored code)
@@ -50,9 +54,10 @@ const budgetUsd = Number(arg("budget", Infinity));
 const startAt = arg("start-at");
 const isDryRun = flag("dry-run");
 const isResume = flag("resume");
+const isSmoke  = flag("smoke");
 
 if (!studyId || !policyName) {
-  console.error("usage: run-pass.mjs --study=<id> --policy=<id> [--limit=N] [--budget=USD] [--dry-run] [--resume] [--start-at=<path>]");
+  console.error("usage: run-pass.mjs --study=<id> --policy=<id> [--limit=N] [--budget=USD] [--dry-run] [--resume] [--start-at=<path>] [--smoke]");
   process.exit(2);
 }
 if (!isDryRun && !process.env.ANTHROPIC_API_KEY) {
@@ -81,7 +86,10 @@ const model = pickPrimaryModel();
 if (!model) { console.error("policy has no model to author with"); process.exit(2); }
 
 const STUDY_DIR = join(ROOT, study.directory);
-const TARGET_DIR = join(ROOT, study.passes_root, policyEntry.directory);
+// Smoke mode writes to an isolated subdir so it never contaminates a real pass.
+const TARGET_DIR = isSmoke
+  ? join(ROOT, study.passes_root, policyEntry.directory, ".smoke-test")
+  : join(ROOT, study.passes_root, policyEntry.directory);
 const TELEMETRY = join(TARGET_DIR, "telemetry.jsonl");
 
 const briefContent = readFileSync(join(STUDY_DIR, "brief.md"), "utf-8");
@@ -94,7 +102,8 @@ console.log(`  model:       ${model.model_name}  (label: ${model.display_name ??
 console.log(`  target dir:  ${study.passes_root}/${policyEntry.directory}`);
 console.log(`  budget:      ${Number.isFinite(budgetUsd) ? `$${budgetUsd}` : "unlimited"}`);
 console.log(`  dry-run:     ${isDryRun}`);
-console.log(`  resume:      ${isResume}\n`);
+console.log(`  resume:      ${isResume}`);
+console.log(`  smoke:       ${isSmoke}${isSmoke ? "  (isolated .smoke-test/ subdir, 1 file, ~$0.50)" : ""}\n`);
 
 // ──────────────────── file list (study-specific) ────────────────────
 // Ordered by dependency. Author shared/common files first; tests and docs last.
@@ -317,7 +326,13 @@ let cumulativeCost = 0;
 let totalLoc = 0;
 let okCount = 0, failCount = 0, skipCount = 0;
 
-const slice = files.slice(0, Number.isFinite(limit) ? limit : files.length);
+// Smoke mode: pick exactly one small, schema-driven file. tsconfig.json is
+// ideal — short (~30 LOC), deterministic, exercises the full JSON-envelope +
+// extractContent + write-to-disk pipeline.
+const SMOKE_FILE = "tsconfig.json";
+const slice = isSmoke
+  ? [SMOKE_FILE]
+  : files.slice(0, Number.isFinite(limit) ? limit : files.length);
 let seq = 0, started = !startAt;
 
 for (const rel of slice) {
@@ -509,6 +524,33 @@ if (!isDryRun) {
   const allEvents = allLines.map((l) => JSON.parse(l));
   const manifest = rollup(allEvents);
   writeFileSync(join(TARGET_DIR, "manifest.json"), JSON.stringify(manifest, null, 2));
+
+  if (isSmoke) {
+    // Smoke-mode summary is the actionable signal: did the full pipeline work
+    // end-to-end with the configured model + key? On success, the operator
+    // can confidently kick off the long run.
+    const ok = okCount === 1 && failCount === 0;
+    console.log(`\n${ok ? "✅" : "❌"} SMOKE TEST — ${policyName} / ${model.model_name}`);
+    console.log(`  result:     ${ok ? "PASS" : "FAIL"}`);
+    console.log(`  cost:       $${cumulativeCost.toFixed(5)}`);
+    console.log(`  artifact:   ${TARGET_DIR}/${SMOKE_FILE}${ok ? "  (review it!)" : ""}`);
+    console.log(`  telemetry:  ${TELEMETRY}`);
+    if (ok) {
+      console.log(`\n  ✓ API key, model_name '${model.model_name}', and pipeline are working.`);
+      console.log(`  ✓ Safe to launch the full run:`);
+      console.log(`      node tools/run-pass.mjs --study=${studyId} --policy=${policyName} --budget=<USD>\n`);
+    } else {
+      const ev = events[0];
+      console.log(`\n  ✗ Failure detail:`);
+      console.log(`      ${ev?.error ?? "(no event captured — check log above)"}\n`);
+      console.log(`  Likely fixes:`);
+      console.log(`    • If 404 not_found_error: edit plugin/config/policies/${policyName}.yaml`);
+      console.log(`      → set model_name to an Opus model your account has access to.`);
+      console.log(`    • If 401/403: rotate ANTHROPIC_API_KEY and re-source .env.`);
+      console.log(`    • If empty/short output: extractContent may be failing on a JSON envelope — share the telemetry line.\n`);
+    }
+    process.exit(ok ? 0 : 1);
+  }
 
   console.log(`\n${policyName} authoring complete:`);
   console.log(`  files written:    ${okCount}`);
