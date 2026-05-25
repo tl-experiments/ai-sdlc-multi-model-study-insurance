@@ -11,6 +11,7 @@
       "description": "HRMS + time tracking with PII protection, RBAC, audit logging. The original POC that validated the Opus-vs-Gemini orchestration thesis.",
       "directory": "sample-project",
       "passes_root": "sample-project",
+      "baseline_cost_usd": 3.50,
       "passes": [
         { "id": "pass1", "policy": "opus-only",         "directory": "pass1-opus-only",     "label": "Pass 1: Opus only",                "shortLabel": "Opus only",            "headerColor": "violet" },
         { "id": "pass2", "policy": "opus-plus-pro",     "directory": "pass2-opus-pro",      "label": "Pass 2: Opus + Gemini Pro",         "shortLabel": "Opus + Gemini Pro",     "headerColor": "blue" },
@@ -27,6 +28,7 @@
       "description": "FNOL → adjuster workbench → reserves for a Japanese P&C carrier, with APPI / JFSA / IFRS17 hooks. Track A scope: 3 modules at ~$25-35 Opus baseline.",
       "directory": "case-studies/yotsuba-claims-platform",
       "passes_root": "case-studies/yotsuba-claims-platform/passes",
+      "baseline_cost_usd": 30,
       "passes": [
         { "id": "pass1", "policy": "opus-4-7",                              "directory": "opus-4-7",                                  "label": "Pass 1: Opus 4.7 only",                   "shortLabel": "Opus 4.7 only",                "headerColor": "violet" },
         { "id": "pass2", "policy": "opus-4-7-with-gemini-3-5-flash",       "directory": "opus-4-7-with-gemini-3-5-flash",            "label": "Pass 2: Opus 4.7 + Gemini 3.5 Flash",      "shortLabel": "Opus 4.7 + Flash",              "headerColor": "cyan" },
@@ -38,7 +40,10 @@
   ],
   "model_substitutions": {
     "_comment": "When a requested model ID isn't GA on its API, we substitute the closest available + flag in the dashboard footer.",
-    "gemini-3.1-pro": { "actual_api_model": "gemini-2.5-pro",    "reason": "gemini-3.1-pro not GA; gemini-2.5-pro is the closest Pro-tier model." },
-    "claude-sonnet-4-6": { "actual_api_model": "claude-sonnet-4-5", "reason": "claude-sonnet-4-6 not GA; claude-sonnet-4-5 is the latest shipping Sonnet." }
+    "claude-opus-4-7":    { "actual_api_model": "claude-opus-4-20250514",    "reason": "claude-opus-4-7 label kept for narrative; claude-opus-4-20250514 is the latest GA Opus on the Anthropic API." },
+    "claude-sonnet-4-6":  { "actual_api_model": "claude-sonnet-4-20250514",  "reason": "claude-sonnet-4-6 label kept; claude-sonnet-4-20250514 is the latest GA Sonnet." },
+    "claude-haiku-4-5":   { "actual_api_model": "claude-3-5-haiku-20241022", "reason": "claude-haiku-4-5 label kept; claude-3-5-haiku-20241022 is the most recent shipping Haiku." },
+    "gemini-3.1-pro":     { "actual_api_model": "gemini-2.5-pro",            "reason": "gemini-3.1-pro not GA; gemini-2.5-pro is the closest Pro-tier model." },
+    "gemini-3.5-flash":   { "actual_api_model": "gemini-3.5-flash",          "reason": "real model — no substitution." }
   }
 }

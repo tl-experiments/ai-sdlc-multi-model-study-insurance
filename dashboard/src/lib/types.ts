@@ -120,6 +120,7 @@ export interface StudyConfig {
   description: string;
   directory: string;
   passes_root: string;
+  baseline_cost_usd?: number;   // expected baseline-pass cost (USD); shown as a target before any pass runs
   passes: PassConfig[];
 }
 
