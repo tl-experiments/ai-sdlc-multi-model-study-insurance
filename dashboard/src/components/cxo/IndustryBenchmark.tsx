@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import type { PassData } from "../../lib/types";
+import { pipelineOk } from "../../lib/passGate";
 
 /**
  * Anchor the LLM cost against the alternative (human engineering hours) instead
@@ -14,10 +15,7 @@ const DEFAULT_SDE_RATE_USD = 110;        // fully-loaded senior SDE per-hour (AP
 const DEFAULT_LOC_PER_HOUR = 30;         // industry-standard "production-grade with tests"
 
 export function IndustryBenchmark({ passes }: { passes: PassData[] }) {
-  const baseline = passes.find((p) => {
-    const a = p.manifest.artifacts ?? {};
-    return (p.manifest.total_cost_usd ?? 0) > 0 && a.build_ok === true && (a.tests_passed ?? 0) > 0 && (a.loc ?? 0) > 0;
-  });
+  const baseline = passes.find((p) => pipelineOk(p) && (p.manifest.artifacts?.loc ?? 0) > 0);
 
   const [sdeRate, setSdeRate] = useState(DEFAULT_SDE_RATE_USD);
   const [locPerHour, setLocPerHour] = useState(DEFAULT_LOC_PER_HOUR);
@@ -40,8 +38,7 @@ export function IndustryBenchmark({ passes }: { passes: PassData[] }) {
 
   // Pick the cheapest non-baseline verified pass for the orchestrated comparison
   const cheapest = passes
-    .filter((p) => p.config.id !== baseline.config.id)
-    .filter((p) => (p.manifest.total_cost_usd ?? 0) > 0 && p.manifest.artifacts?.build_ok === true)
+    .filter((p) => p.config.id !== baseline.config.id && pipelineOk(p))
     .sort((a, b) => (a.manifest.total_cost_usd ?? 0) - (b.manifest.total_cost_usd ?? 0))[0];
   const orchestratedCost = cheapest?.manifest.total_cost_usd ?? llmCost;
 

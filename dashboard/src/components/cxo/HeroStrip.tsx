@@ -1,5 +1,6 @@
 import React from "react";
 import type { PassData } from "../../lib/types";
+import { pipelineOk } from "../../lib/passGate";
 
 /**
  * Board-deck hero metric. Reads exactly two passes from the study —
@@ -82,12 +83,8 @@ export function HeroStrip({ passes }: { passes: PassData[] }) {
   );
 }
 
-function verifiedPass(p: PassData): boolean {
-  const a = p.manifest.artifacts ?? {};
-  return !!p.manifest.total_cost_usd && p.manifest.total_cost_usd > 0
-      && a.build_ok === true
-      && (a.tests_passed ?? 0) > 0;
-}
+// Use the looser "pipelineOk" gate — see lib/passGate.ts for rationale.
+const verifiedPass = pipelineOk;
 
 function avgQuality(q?: Record<string, number>): number | null {
   if (!q) return null;

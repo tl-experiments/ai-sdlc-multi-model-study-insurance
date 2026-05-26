@@ -4,6 +4,7 @@ import {
   CartesianGrid, Tooltip, ResponsiveContainer, ReferenceArea, Cell,
 } from "recharts";
 import type { PassData } from "../../lib/types";
+import { pipelineOk } from "../../lib/passGate";
 
 /**
  * 2-D scatter: X = cost (log-friendly linear OK here), Y = quality score (1-5).
@@ -18,10 +19,7 @@ export function QualityCostGrid({ passes }: { passes: PassData[] }) {
     .map((p) => {
       const cost = p.manifest.total_cost_usd ?? 0;
       const quality = avgQuality(p.manifest.quality_scores);
-      const verified =
-        cost > 0 &&
-        p.manifest.artifacts?.build_ok === true &&
-        (p.manifest.artifacts?.tests_passed ?? 0) > 0;
+      const verified = pipelineOk(p);
       return { id: p.config.id, label: p.config.shortLabel, cost, quality, verified };
     })
     .filter((d) => d.cost > 0 && d.quality !== null) as Array<{

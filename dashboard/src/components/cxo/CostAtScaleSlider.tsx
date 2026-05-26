@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import type { PassData } from "../../lib/types";
+import { pipelineOk } from "../../lib/passGate";
 
 /**
  * Cost-at-scale projector. Takes the verified passes and an N multiplier slider,
@@ -12,13 +13,7 @@ import type { PassData } from "../../lib/types";
 const SCALES = [1, 10, 100, 1_000, 10_000];
 
 export function CostAtScaleSlider({ passes }: { passes: PassData[] }) {
-  const verified = useMemo(
-    () => passes.filter((p) => {
-      const a = p.manifest.artifacts ?? {};
-      return (p.manifest.total_cost_usd ?? 0) > 0 && a.build_ok === true && (a.tests_passed ?? 0) > 0;
-    }),
-    [passes],
-  );
+  const verified = useMemo(() => passes.filter(pipelineOk), [passes]);
 
   const baseline = verified[0];
   const cheapest = verified

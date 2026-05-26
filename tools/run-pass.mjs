@@ -597,7 +597,8 @@ function rollup(events) {
   const round = (o) => { for (const k of Object.keys(o)) { if (typeof o[k] === "number") o[k] = r6(o[k]); else if (typeof o[k] === "object" && o[k]) round(o[k]); } };
   round(model_breakdown); round(phase_breakdown); round(module_breakdown); round(task_type_breakdown);
 
-  const cache_hit_rate = ti > 0 ? r6(tic / ti) : 0;
+  // cached / (fresh + cached) — caps at 1.0 with effective caching.
+  const cache_hit_rate = (ti + tic) > 0 ? r6(tic / (ti + tic)) : 0;
   const latencies = events.map((e) => e.latency_ms).sort((a, b) => a - b);
   const p = (q) => latencies.length === 0 ? 0 : latencies[Math.min(latencies.length - 1, Math.floor(q * latencies.length))];
 
@@ -611,8 +612,13 @@ function rollup(events) {
     latency_ms_p50: p(0.5), latency_ms_p95: p(0.95),
     model_breakdown, phase_breakdown, module_breakdown, task_type_breakdown,
     artifacts: {
-      files: okCount, loc: totalLoc, tests: events.filter((e) => e.phase === "tests").length,
-      test_pass_rate: -1,  // set by verifier
+      // Derive from the FULL telemetry stream (handles --resume correctly).
+      // okCount + totalLoc are process-local counters and exclude previously-
+      // written files when running in resume mode.
+      files: events.filter((e) => e.success).length,
+      loc: events.reduce((sum, e) => sum + (e.artifact_loc ?? 0), 0),
+      tests: events.filter((e) => e.phase === "tests" && e.success).length,
+      test_pass_rate: -1,                       // set by verifier
     },
     synthesized: false,
     reproducibility: {

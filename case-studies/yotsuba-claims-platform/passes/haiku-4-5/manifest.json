@@ -1,0 +1,328 @@
+{
+  "pass": "haiku-4-5",
+  "pass_label": "Pass 4: Haiku 4.5 only (Track B)",
+  "policy_name": "haiku-4-5",
+  "study": "yotsuba-claims",
+  "started_at": "2026-05-26T04:14:43.795Z",
+  "ended_at": "2026-05-26T04:48:58.249Z",
+  "duration_sec": 2054,
+  "total_cost_usd": 1.952871,
+  "total_input_tokens": 741702,
+  "total_input_tokens_cached": 868965,
+  "total_output_tokens": 322498,
+  "cache_hit_rate": 0.539506,
+  "total_round_trips": 95,
+  "latency_ms_p50": 10941,
+  "latency_ms_p95": 95065,
+  "model_breakdown": {
+    "claude-haiku-4-5-20251001": {
+      "calls": 86,
+      "cost_usd": 1.952871,
+      "input_tokens": 741702,
+      "input_tokens_cached": 868965,
+      "output_tokens": 322498,
+      "loc": 15881
+    }
+  },
+  "phase_breakdown": {
+    "codegen": {
+      "calls": 73,
+      "cost_usd": 1.20051,
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "by_model": {
+        "claude-haiku-4-5-20251001": {
+          "calls": 73,
+          "cost_usd": 1.20051,
+          "input_tokens": 502897,
+          "input_tokens_cached": 704319,
+          "output_tokens": 185461
+        }
+      }
+    },
+    "tests": {
+      "calls": 5,
+      "cost_usd": 0.278449,
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "by_model": {
+        "claude-haiku-4-5-20251001": {
+          "calls": 5,
+          "cost_usd": 0.278449,
+          "input_tokens": 60745,
+          "input_tokens_cached": 64029,
+          "output_tokens": 56183
+        }
+      }
+    },
+    "docs": {
+      "calls": 8,
+      "cost_usd": 0.473912,
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "by_model": {
+        "claude-haiku-4-5-20251001": {
+          "calls": 8,
+          "cost_usd": 0.473912,
+          "input_tokens": 178060,
+          "input_tokens_cached": 100617,
+          "output_tokens": 80854
+        }
+      }
+    }
+  },
+  "module_breakdown": {
+    "cross": {
+      "calls": 29,
+      "cost_usd": 0.660201,
+      "loc": 4972,
+      "by_model": {
+        "claude-haiku-4-5-20251001": {
+          "calls": 29,
+          "cost_usd": 0.660201,
+          "input_tokens": 252077,
+          "input_tokens_cached": 292704,
+          "output_tokens": 108781
+        }
+      }
+    },
+    "auth": {
+      "calls": 7,
+      "cost_usd": 0.058223,
+      "loc": 511,
+      "by_model": {
+        "claude-haiku-4-5-20251001": {
+          "calls": 7,
+          "cost_usd": 0.058223,
+          "input_tokens": 26141,
+          "input_tokens_cached": 64029,
+          "output_tokens": 8047
+        }
+      }
+    },
+    "audit": {
+      "calls": 3,
+      "cost_usd": 0.023002,
+      "loc": 179,
+      "by_model": {
+        "claude-haiku-4-5-20251001": {
+          "calls": 3,
+          "cost_usd": 0.023002,
+          "input_tokens": 8384,
+          "input_tokens_cached": 27441,
+          "output_tokens": 3525
+        }
+      }
+    },
+    "claims": {
+      "calls": 11,
+      "cost_usd": 0.276588,
+      "loc": 1414,
+      "by_model": {
+        "claude-haiku-4-5-20251001": {
+          "calls": 11,
+          "cost_usd": 0.276588,
+          "input_tokens": 89320,
+          "input_tokens_cached": 118911,
+          "output_tokens": 48905
+        }
+      }
+    },
+    "reserves": {
+      "calls": 8,
+      "cost_usd": 0.142593,
+      "loc": 1138,
+      "by_model": {
+        "claude-haiku-4-5-20251001": {
+          "calls": 8,
+          "cost_usd": 0.142593,
+          "input_tokens": 63823,
+          "input_tokens_cached": 73176,
+          "output_tokens": 21420
+        }
+      }
+    },
+    "appi": {
+      "calls": 4,
+      "cost_usd": 0.062805,
+      "loc": 699,
+      "by_model": {
+        "claude-haiku-4-5-20251001": {
+          "calls": 4,
+          "cost_usd": 0.062805,
+          "input_tokens": 21877,
+          "input_tokens_cached": 36588,
+          "output_tokens": 10594
+        }
+      }
+    },
+    "claims-fnol": {
+      "calls": 1,
+      "cost_usd": 0.088262,
+      "loc": 764,
+      "by_model": {
+        "claude-haiku-4-5-20251001": {
+          "calls": 1,
+          "cost_usd": 0.088262,
+          "input_tokens": 14374,
+          "input_tokens_cached": 18294,
+          "output_tokens": 18825
+        }
+      }
+    },
+    "claims-workbench": {
+      "calls": 1,
+      "cost_usd": 0.109662,
+      "loc": 931,
+      "by_model": {
+        "claude-haiku-4-5-20251001": {
+          "calls": 1,
+          "cost_usd": 0.109662,
+          "input_tokens": 31154,
+          "input_tokens_cached": 18294,
+          "output_tokens": 20819
+        }
+      }
+    },
+    "web": {
+      "calls": 22,
+      "cost_usd": 0.531535,
+      "loc": 5273,
+      "by_model": {
+        "claude-haiku-4-5-20251001": {
+          "calls": 22,
+          "cost_usd": 0.531535,
+          "input_tokens": 234552,
+          "input_tokens_cached": 219528,
+          "output_tokens": 81582
+        }
+      }
+    }
+  },
+  "task_type_breakdown": {
+    "project_config": {
+      "calls": 6,
+      "cost_usd": 0.030176
+    },
+    "test_config": {
+      "calls": 1,
+      "cost_usd": 0.007897
+    },
+    "prisma_schema": {
+      "calls": 1,
+      "cost_usd": 0.015327
+    },
+    "seed_data": {
+      "calls": 1,
+      "cost_usd": 0.025755
+    },
+    "service_method": {
+      "calls": 11,
+      "cost_usd": 0.27092
+    },
+    "guard": {
+      "calls": 2,
+      "cost_usd": 0.01999
+    },
+    "decorator": {
+      "calls": 3,
+      "cost_usd": 0.022001
+    },
+    "interceptor": {
+      "calls": 1,
+      "cost_usd": 0.010921
+    },
+    "filter": {
+      "calls": 1,
+      "cost_usd": 0.008982
+    },
+    "middleware": {
+      "calls": 2,
+      "cost_usd": 0.013598
+    },
+    "dto": {
+      "calls": 10,
+      "cost_usd": 0.087869
+    },
+    "controller_handler": {
+      "calls": 4,
+      "cost_usd": 0.078739
+    },
+    "module_wiring": {
+      "calls": 6,
+      "cost_usd": 0.056504
+    },
+    "fsm": {
+      "calls": 1,
+      "cost_usd": 0.011343
+    },
+    "bootstrap": {
+      "calls": 1,
+      "cost_usd": 0.008953
+    },
+    "test_integration": {
+      "calls": 5,
+      "cost_usd": 0.278449
+    },
+    "readme_section": {
+      "calls": 1,
+      "cost_usd": 0.031033
+    },
+    "architecture_doc": {
+      "calls": 1,
+      "cost_usd": 0.032257
+    },
+    "adr_draft": {
+      "calls": 6,
+      "cost_usd": 0.410622
+    },
+    "frontend_config": {
+      "calls": 6,
+      "cost_usd": 0.063512
+    },
+    "frontend_html": {
+      "calls": 1,
+      "cost_usd": 0.003366
+    },
+    "react_page": {
+      "calls": 7,
+      "cost_usd": 0.334214
+    },
+    "frontend_util": {
+      "calls": 1,
+      "cost_usd": 0.011439
+    },
+    "api_client": {
+      "calls": 1,
+      "cost_usd": 0.019247
+    },
+    "react_component": {
+      "calls": 6,
+      "cost_usd": 0.099757
+    }
+  },
+  "artifacts": {
+    "files": 86,
+    "loc": 15881,
+    "tests": 0,
+    "test_pass_rate": 0,
+    "build_ok": false,
+    "ts_errors": 102,
+    "tests_passed": 0,
+    "tests_failed": 0,
+    "envelope_leaks": 0,
+    "prisma_generate_ok": true
+  },
+  "synthesized": false,
+  "reproducibility": {
+    "brief_sha256": "5e4b6e51df64e9ee66e5ce341cb0b02e2f57e42c85d2e3c8a3f140d7df171445",
+    "design_sha256": "39299aca9dfd25a92f3c79f0656a4c69516e0cb75cb0ad981fc4ec4c775c1fe0",
+    "policy_sha256": "f7066f89730a15050bf83f662215fdb0e8fd21da49eebe939c6a0259363f1c6e",
+    "authored_at": "2026-05-26T04:48:58.263Z",
+    "model_actual": "claude-haiku-4-5-20251001",
+    "model_requested": "claude-haiku-4-5"
+  }
+}

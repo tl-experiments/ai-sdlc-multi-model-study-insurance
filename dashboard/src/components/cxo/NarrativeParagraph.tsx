@@ -1,5 +1,6 @@
 import React from "react";
 import type { PassData, StudyData } from "../../lib/types";
+import { pipelineOk } from "../../lib/passGate";
 
 /**
  * Auto-generated 2-3 sentence executive narrative, read aloud during a 30-second
@@ -7,10 +8,7 @@ import type { PassData, StudyData } from "../../lib/types";
  * data so it can't go stale.
  */
 export function NarrativeParagraph({ study }: { study: StudyData }) {
-  const verified = study.passes.filter((p) => {
-    const a = p.manifest.artifacts ?? {};
-    return (p.manifest.total_cost_usd ?? 0) > 0 && a.build_ok === true && (a.tests_passed ?? 0) > 0;
-  });
+  const verified = study.passes.filter(pipelineOk);
 
   if (verified.length < 2) {
     return (

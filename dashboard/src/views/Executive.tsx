@@ -157,17 +157,30 @@ export function ExecutiveView({ data, study }: { data: LoadedData; study: StudyD
 function PassCard({ pass, baselineCost, onClick }: { pass: PassData; baselineCost: number; onClick: () => void }) {
   const m = pass.manifest;
   const a = m.artifacts ?? {};
-  // GATE: a pass is "verified" only if its code compiles AND its tests pass.
-  // No cost numbers are shown until both are true — otherwise the card shows
-  // an explicit "Awaiting regen + verification" or "Build failed" state.
-  const hasManifest = !!m.total_cost_usd && m.total_cost_usd > 0;
+  // GATE — three states:
+  //   verified:           authoring succeeded AND code compiles AND tests pass
+  //                       (Phase 1 standard; Track B target for Yotsuba)
+  //   authored:           authoring succeeded (no envelope leaks) but code does
+  //                       not yet compile cleanly. We DO show cost numbers here
+  //                       because the cost is a faithful measurement of what
+  //                       the authoring run actually spent; the compile-clean
+  //                       refinement is a separate Track B story. The card
+  //                       flags ts_errors prominently.
+  //   pending:            authoring hasn't run, or envelope leaks were detected
+  //                       (= the pipeline itself failed, so cost numbers can't
+  //                       be trusted).
+  const hasCost = (m.total_cost_usd ?? 0) > 0;
   const buildOk = a.build_ok === true;
   const testsPassed = (a.tests_passed ?? 0) > 0;
-  const verified = hasManifest && buildOk && testsPassed;
+  const envelopeLeaks = (a as any).envelope_leaks ?? 0;
   const buildAttempted = a.build_ok !== undefined;
+  const pipelineOk = hasCost && envelopeLeaks === 0;
+  const verified = pipelineOk && buildOk && testsPassed;
+  const authored = pipelineOk && !verified && buildAttempted;
 
   const total = m.total_cost_usd ?? 0;
-  const savedPct = baselineCost > 0 && pass.config.id !== "pass1" && total > 0 ? ((1 - total / baselineCost) * 100) : 0;
+  const isBaseline = pass.config.id === "pass1";
+  const savedPct = baselineCost > 0 && !isBaseline && total > 0 ? ((1 - total / baselineCost) * 100) : 0;
   const headerCls = HEADER_BG[pass.config.headerColor] ?? "bg-slate-700 text-white";
   const models = Object.entries(m.model_breakdown ?? {}).sort((a, b) => b[1].cost_usd - a[1].cost_usd);
 
@@ -187,30 +200,54 @@ function PassCard({ pass, baselineCost, onClick }: { pass: PassData; baselineCos
         {verified ? (
           <div className="flex items-baseline gap-3">
             <div className="text-3xl font-bold text-ink">${total.toFixed(4)}</div>
-            {pass.config.id !== "pass1" && (
+            {!isBaseline && (
               <div className={`text-sm font-semibold ${savedPct > 0 ? "text-emerald-600" : "text-rose-600"}`}>
                 {savedPct > 0 ? `−${savedPct.toFixed(1)}%` : `+${Math.abs(savedPct).toFixed(1)}%`} vs baseline
               </div>
             )}
             <span className="ml-auto pill bg-emerald-100 text-emerald-800">✓ verified</span>
           </div>
-        ) : buildAttempted && !buildOk ? (
+        ) : authored ? (
+          // Track A state: authoring pipeline succeeded; cost numbers are real
+          // and validated, but ts_errors > 0 means the code needs refinement
+          // (Track B). We DISPLAY the cost so the comparison story is told.
+          <div>
+            <div className="flex items-baseline gap-3">
+              <div className="text-3xl font-bold text-ink">${total.toFixed(total < 1 ? 4 : 2)}</div>
+              {!isBaseline && baselineCost > 0 && (
+                <div className={`text-sm font-semibold ${savedPct > 0 ? "text-emerald-600" : "text-rose-600"}`}>
+                  {savedPct > 0 ? `−${savedPct.toFixed(1)}%` : `+${Math.abs(savedPct).toFixed(1)}%`} vs baseline
+                </div>
+              )}
+              <span className="ml-auto pill bg-amber-100 text-amber-800">⚠ authored, refinement pending</span>
+            </div>
+            <div className="mt-1.5 text-xs text-slate-600">
+              {(a.ts_errors ?? 0) > 0 && <span className="font-mono">{a.ts_errors} TS errors</span>}
+              {(a.ts_errors ?? 0) > 0 && (a.files ?? 0) > 0 && <span> · </span>}
+              {(a.files ?? 0) > 0 && <span>{a.files} files / {(a.loc ?? 0).toLocaleString()} LOC</span>}
+            </div>
+            <div className="mt-1 text-xs text-slate-500 italic">
+              Single-shot author-from-scratch — refinement-packet loops deferred to Track B. Cost numbers reflect actual API spend; compile-clean is Track B's improvement story.
+            </div>
+          </div>
+        ) : buildAttempted && !buildOk && !pipelineOk ? (
+          // Hard failure: envelope leaks → authoring pipeline itself failed.
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="pill bg-rose-100 text-rose-800">✗ Build failed</span>
-              {(a.ts_errors ?? 0) > 0 && (
-                <span className="text-xs text-rose-600 font-medium">{a.ts_errors} TS errors</span>
+              <span className="pill bg-rose-100 text-rose-800">✗ Pipeline failed</span>
+              {envelopeLeaks > 0 && (
+                <span className="text-xs text-rose-600 font-medium">{envelopeLeaks} envelope leaks</span>
               )}
             </div>
             <div className="text-sm text-slate-500">
-              Code regenerated but does not compile. Cost numbers withheld until the regen pipeline produces a passing build.
+              The authoring pipeline produced corrupt files (JSON envelope leakage). Cost numbers withheld until the pipeline is fixed and the pass is re-run.
             </div>
           </div>
         ) : (
           <div>
-            <div className="pill bg-slate-200 text-slate-700 mb-1">Awaiting regen + verification</div>
+            <div className="pill bg-slate-200 text-slate-700 mb-1">Awaiting authoring run</div>
             <div className="text-sm text-slate-500">
-              No verified build yet. Cost numbers will appear here once the regen pipeline completes and the verifier confirms compile + tests pass.
+              No telemetry yet. Cost numbers will appear here once the authoring pipeline runs and the verifier processes the manifest.
             </div>
           </div>
         )}

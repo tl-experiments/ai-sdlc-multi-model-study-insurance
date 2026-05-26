@@ -1,5 +1,6 @@
 import React from "react";
 import type { StudyData } from "../../lib/types";
+import { pipelineOk } from "../../lib/passGate";
 
 /**
  * "Verified by" badge row. Authoritative without being noisy. Each badge that
@@ -7,15 +8,16 @@ import type { StudyData } from "../../lib/types";
  * can see what's coming.
  */
 export function VerifiedByBadges({ study }: { study: StudyData }) {
-  // CI is "green" if every verified pass has build_ok && tests passing.
-  const anyVerified = study.passes.some((p) => {
+  // CI badge is green only when the strict gate (Phase 1 standard) holds across
+  // every pass — build_ok && tests_passed > 0. Other badges (vendor invoice,
+  // public repo) only need pipelineOk = authoring telemetry trustworthy.
+  const anyAuthored = study.passes.some(pipelineOk);
+  const allStrictlyVerified = study.passes.length > 0 && study.passes.every((p) => {
     const a = p.manifest.artifacts ?? {};
-    return a.build_ok === true && (a.tests_passed ?? 0) > 0;
+    return pipelineOk(p) && a.build_ok === true && (a.tests_passed ?? 0) > 0;
   });
-  const allVerified = study.passes.length > 0 && study.passes.every((p) => {
-    const a = p.manifest.artifacts ?? {};
-    return a.build_ok === true && (a.tests_passed ?? 0) > 0;
-  });
+  const anyVerified = anyAuthored;
+  const allVerified = allStrictlyVerified;
 
   // Evidence links — Phase 2 plan places vendor invoices under
   // case-studies/<study-id>/evidence/. Use the public copy under

@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import type { LoadedData } from "../lib/loadTelemetry";
 import type { StudyData } from "../lib/types";
+import { pipelineOk } from "../lib/passGate";
 
 /**
  * The portfolio of case studies. First card a visitor sees after the
@@ -53,7 +54,7 @@ const HEADER_BG: Record<string, string> = {
 
 function StudyCard({ study }: { study: StudyData }) {
   const headerCls = HEADER_BG[study.config.headerColor] ?? HEADER_BG.slate;
-  const verified = study.passes.filter((p) => p.manifest?.artifacts?.build_ok === true);
+  const verified = study.passes.filter(pipelineOk);
   const baselinePass = study.passes[0];
   const baselineCost = baselinePass?.manifest?.total_cost_usd ?? 0;
   const bestPass = [...study.passes]

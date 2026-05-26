@@ -1,0 +1,316 @@
+{
+  "pass": "opus-4-7",
+  "pass_label": "Pass 1: Opus 4.7 only",
+  "policy_name": "opus-4-7",
+  "study": "yotsuba-claims",
+  "started_at": "2026-05-26T04:18:26.547Z",
+  "ended_at": "2026-05-26T06:07:28.399Z",
+  "duration_sec": 6542,
+  "total_cost_usd": 55.729758,
+  "total_input_tokens": 1079889,
+  "total_input_tokens_cached": 1157610,
+  "total_output_tokens": 503933,
+  "cache_hit_rate": 0.517368,
+  "total_round_trips": 96,
+  "latency_ms_p50": 40789,
+  "latency_ms_p95": 287862,
+  "model_breakdown": {
+    "claude-opus-4-7": {
+      "calls": 79,
+      "cost_usd": 55.729758,
+      "input_tokens": 1079889,
+      "input_tokens_cached": 1157610,
+      "output_tokens": 503933,
+      "loc": 12008
+    }
+  },
+  "phase_breakdown": {
+    "codegen": {
+      "calls": 66,
+      "cost_usd": 36.392683,
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "by_model": {
+        "claude-opus-4-7": {
+          "calls": 66,
+          "cost_usd": 36.392683,
+          "input_tokens": 734119,
+          "input_tokens_cached": 886680,
+          "output_tokens": 320678
+        }
+      }
+    },
+    "tests": {
+      "calls": 5,
+      "cost_usd": 5.948326,
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "by_model": {
+        "claude-opus-4-7": {
+          "calls": 5,
+          "cost_usd": 5.948326,
+          "input_tokens": 76303,
+          "input_tokens_cached": 98520,
+          "output_tokens": 62080
+        }
+      }
+    },
+    "docs": {
+      "calls": 8,
+      "cost_usd": 13.388749,
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "by_model": {
+        "claude-opus-4-7": {
+          "calls": 8,
+          "cost_usd": 13.388749,
+          "input_tokens": 269467,
+          "input_tokens_cached": 172410,
+          "output_tokens": 121175
+        }
+      }
+    }
+  },
+  "module_breakdown": {
+    "cross": {
+      "calls": 22,
+      "cost_usd": 23.189042,
+      "loc": 3362,
+      "by_model": {
+        "claude-opus-4-7": {
+          "calls": 22,
+          "cost_usd": 23.189042,
+          "input_tokens": 421914,
+          "input_tokens_cached": 381765,
+          "output_tokens": 217169
+        }
+      }
+    },
+    "auth": {
+      "calls": 7,
+      "cost_usd": 1.988125,
+      "loc": 667,
+      "by_model": {
+        "claude-opus-4-7": {
+          "calls": 7,
+          "cost_usd": 1.988125,
+          "input_tokens": 46941,
+          "input_tokens_cached": 86205,
+          "output_tokens": 15396
+        }
+      }
+    },
+    "audit": {
+      "calls": 3,
+      "cost_usd": 0.831894,
+      "loc": 272,
+      "by_model": {
+        "claude-opus-4-7": {
+          "calls": 3,
+          "cost_usd": 0.831894,
+          "input_tokens": 17840,
+          "input_tokens_cached": 36945,
+          "output_tokens": 6785
+        }
+      }
+    },
+    "claims": {
+      "calls": 11,
+      "cost_usd": 5.352978,
+      "loc": 1270,
+      "by_model": {
+        "claude-opus-4-7": {
+          "calls": 11,
+          "cost_usd": 5.352978,
+          "input_tokens": 110277,
+          "input_tokens_cached": 147780,
+          "output_tokens": 46362
+        }
+      }
+    },
+    "reserves": {
+      "calls": 8,
+      "cost_usd": 4.363594,
+      "loc": 1115,
+      "by_model": {
+        "claude-opus-4-7": {
+          "calls": 8,
+          "cost_usd": 4.363594,
+          "input_tokens": 97939,
+          "input_tokens_cached": 98520,
+          "output_tokens": 36623
+        }
+      }
+    },
+    "appi": {
+      "calls": 4,
+      "cost_usd": 1.866646,
+      "loc": 767,
+      "by_model": {
+        "claude-opus-4-7": {
+          "calls": 4,
+          "cost_usd": 1.866646,
+          "input_tokens": 33112,
+          "input_tokens_cached": 49260,
+          "output_tokens": 17281
+        }
+      }
+    },
+    "claims-fnol": {
+      "calls": 1,
+      "cost_usd": 1.413346,
+      "loc": 347,
+      "by_model": {
+        "claude-opus-4-7": {
+          "calls": 1,
+          "cost_usd": 1.413346,
+          "input_tokens": 17790,
+          "input_tokens_cached": 24630,
+          "output_tokens": 14794
+        }
+      }
+    },
+    "claims-workbench": {
+      "calls": 1,
+      "cost_usd": 1.818975,
+      "loc": 569,
+      "by_model": {
+        "claude-opus-4-7": {
+          "calls": 1,
+          "cost_usd": 1.818975,
+          "input_tokens": 24432,
+          "input_tokens_cached": 24630,
+          "output_tokens": 18874
+        }
+      }
+    },
+    "web": {
+      "calls": 22,
+      "cost_usd": 14.905158,
+      "loc": 3639,
+      "by_model": {
+        "claude-opus-4-7": {
+          "calls": 22,
+          "cost_usd": 14.905158,
+          "input_tokens": 309644,
+          "input_tokens_cached": 307875,
+          "output_tokens": 130649
+        }
+      }
+    }
+  },
+  "task_type_breakdown": {
+    "seed_data": {
+      "calls": 2,
+      "cost_usd": 4.067507
+    },
+    "service_method": {
+      "calls": 11,
+      "cost_usd": 7.399803
+    },
+    "guard": {
+      "calls": 2,
+      "cost_usd": 0.673231
+    },
+    "decorator": {
+      "calls": 3,
+      "cost_usd": 0.904854
+    },
+    "interceptor": {
+      "calls": 1,
+      "cost_usd": 0.567833
+    },
+    "filter": {
+      "calls": 1,
+      "cost_usd": 0.633203
+    },
+    "middleware": {
+      "calls": 2,
+      "cost_usd": 0.740731
+    },
+    "dto": {
+      "calls": 10,
+      "cost_usd": 2.698924
+    },
+    "controller_handler": {
+      "calls": 4,
+      "cost_usd": 1.668706
+    },
+    "module_wiring": {
+      "calls": 6,
+      "cost_usd": 1.424282
+    },
+    "fsm": {
+      "calls": 1,
+      "cost_usd": 0.350978
+    },
+    "bootstrap": {
+      "calls": 1,
+      "cost_usd": 0.357473
+    },
+    "test_integration": {
+      "calls": 5,
+      "cost_usd": 5.948326
+    },
+    "readme_section": {
+      "calls": 1,
+      "cost_usd": 1.526626
+    },
+    "architecture_doc": {
+      "calls": 1,
+      "cost_usd": 1.612621
+    },
+    "adr_draft": {
+      "calls": 6,
+      "cost_usd": 10.249502
+    },
+    "frontend_config": {
+      "calls": 6,
+      "cost_usd": 1.821317
+    },
+    "frontend_html": {
+      "calls": 1,
+      "cost_usd": 0.133028
+    },
+    "react_page": {
+      "calls": 7,
+      "cost_usd": 7.26248
+    },
+    "frontend_util": {
+      "calls": 1,
+      "cost_usd": 0.72
+    },
+    "api_client": {
+      "calls": 1,
+      "cost_usd": 1.706085
+    },
+    "react_component": {
+      "calls": 6,
+      "cost_usd": 3.262248
+    }
+  },
+  "artifacts": {
+    "files": 85,
+    "loc": 12506,
+    "tests": 0,
+    "test_pass_rate": 0,
+    "build_ok": false,
+    "ts_errors": 115,
+    "envelope_leaks": 0,
+    "prisma_generate_ok": true,
+    "tests_passed": 0,
+    "tests_failed": 0
+  },
+  "synthesized": false,
+  "reproducibility": {
+    "brief_sha256": "5e4b6e51df64e9ee66e5ce341cb0b02e2f57e42c85d2e3c8a3f140d7df171445",
+    "design_sha256": "39299aca9dfd25a92f3c79f0656a4c69516e0cb75cb0ad981fc4ec4c775c1fe0",
+    "policy_sha256": "d6e8d17a2b13afc42acdac7772df8775c5d5549d686824bceb5fc8360967dd28",
+    "authored_at": "2026-05-26T06:07:28.413Z",
+    "model_actual": "claude-opus-4-7",
+    "model_requested": "claude-opus-4-7"
+  }
+}

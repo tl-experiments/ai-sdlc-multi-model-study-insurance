@@ -1,0 +1,351 @@
+{
+  "pass": "opus-4-7-with-gemini-3-5-flash",
+  "pass_label": "Pass 2: Opus 4.7 + Gemini 3.5 Flash",
+  "policy_name": "opus-4-7-with-gemini-3-5-flash",
+  "study": "yotsuba-claims",
+  "started_at": "2026-05-26T04:59:04.618Z",
+  "ended_at": "2026-05-26T05:21:25.377Z",
+  "duration_sec": 1341,
+  "total_cost_usd": 0.458584,
+  "total_input_tokens": 201594,
+  "total_input_tokens_cached": 28602,
+  "total_output_tokens": 65544,
+  "cache_hit_rate": 0.124251,
+  "total_round_trips": 88,
+  "latency_ms_p50": 13816,
+  "latency_ms_p95": 33401,
+  "model_breakdown": {
+    "gemini-3.5-flash": {
+      "calls": 84,
+      "cost_usd": 0.218914,
+      "input_tokens": 196429,
+      "input_tokens_cached": 3972,
+      "output_tokens": 63874,
+      "loc": 3680
+    },
+    "claude-opus-4-7": {
+      "calls": 2,
+      "cost_usd": 0.23967,
+      "input_tokens": 5165,
+      "input_tokens_cached": 24630,
+      "output_tokens": 1670,
+      "loc": 48
+    }
+  },
+  "phase_breakdown": {
+    "codegen": {
+      "calls": 73,
+      "cost_usd": 0.40554,
+      "models": [
+        "gemini-3.5-flash",
+        "claude-opus-4-7"
+      ],
+      "by_model": {
+        "gemini-3.5-flash": {
+          "calls": 71,
+          "cost_usd": 0.16587,
+          "input_tokens": 162879,
+          "input_tokens_cached": 3972,
+          "output_tokens": 46682
+        },
+        "claude-opus-4-7": {
+          "calls": 2,
+          "cost_usd": 0.23967,
+          "input_tokens": 5165,
+          "input_tokens_cached": 24630,
+          "output_tokens": 1670
+        }
+      }
+    },
+    "tests": {
+      "calls": 5,
+      "cost_usd": 0.019183,
+      "models": [
+        "gemini-3.5-flash"
+      ],
+      "by_model": {
+        "gemini-3.5-flash": {
+          "calls": 5,
+          "cost_usd": 0.019183,
+          "input_tokens": 8487,
+          "input_tokens_cached": 0,
+          "output_tokens": 6655
+        }
+      }
+    },
+    "docs": {
+      "calls": 8,
+      "cost_usd": 0.033861,
+      "models": [
+        "gemini-3.5-flash"
+      ],
+      "by_model": {
+        "gemini-3.5-flash": {
+          "calls": 8,
+          "cost_usd": 0.033861,
+          "input_tokens": 25063,
+          "input_tokens_cached": 0,
+          "output_tokens": 10537
+        }
+      }
+    }
+  },
+  "module_breakdown": {
+    "cross": {
+      "calls": 29,
+      "cost_usd": 0.298068,
+      "loc": 1124,
+      "by_model": {
+        "gemini-3.5-flash": {
+          "calls": 27,
+          "cost_usd": 0.058398,
+          "input_tokens": 47530,
+          "input_tokens_cached": 0,
+          "output_tokens": 17656
+        },
+        "claude-opus-4-7": {
+          "calls": 2,
+          "cost_usd": 0.23967,
+          "input_tokens": 5165,
+          "input_tokens_cached": 24630,
+          "output_tokens": 1670
+        }
+      }
+    },
+    "auth": {
+      "calls": 7,
+      "cost_usd": 0.008098,
+      "loc": 225,
+      "by_model": {
+        "gemini-3.5-flash": {
+          "calls": 7,
+          "cost_usd": 0.008098,
+          "input_tokens": 8093,
+          "input_tokens_cached": 0,
+          "output_tokens": 2268
+        }
+      }
+    },
+    "audit": {
+      "calls": 3,
+      "cost_usd": 0.002881,
+      "loc": 100,
+      "by_model": {
+        "gemini-3.5-flash": {
+          "calls": 3,
+          "cost_usd": 0.002881,
+          "input_tokens": 2703,
+          "input_tokens_cached": 0,
+          "output_tokens": 828
+        }
+      }
+    },
+    "claims": {
+      "calls": 11,
+      "cost_usd": 0.020162,
+      "loc": 625,
+      "by_model": {
+        "gemini-3.5-flash": {
+          "calls": 11,
+          "cost_usd": 0.020162,
+          "input_tokens": 16729,
+          "input_tokens_cached": 0,
+          "output_tokens": 6057
+        }
+      }
+    },
+    "reserves": {
+      "calls": 8,
+      "cost_usd": 0.019357,
+      "loc": 529,
+      "by_model": {
+        "gemini-3.5-flash": {
+          "calls": 8,
+          "cost_usd": 0.019357,
+          "input_tokens": 15046,
+          "input_tokens_cached": 0,
+          "output_tokens": 5937
+        }
+      }
+    },
+    "appi": {
+      "calls": 4,
+      "cost_usd": 0.007206,
+      "loc": 199,
+      "by_model": {
+        "gemini-3.5-flash": {
+          "calls": 4,
+          "cost_usd": 0.007206,
+          "input_tokens": 5497,
+          "input_tokens_cached": 0,
+          "output_tokens": 2223
+        }
+      }
+    },
+    "claims-fnol": {
+      "calls": 1,
+      "cost_usd": 0.005259,
+      "loc": 174,
+      "by_model": {
+        "gemini-3.5-flash": {
+          "calls": 1,
+          "cost_usd": 0.005259,
+          "input_tokens": 1465,
+          "input_tokens_cached": 0,
+          "output_tokens": 1928
+        }
+      }
+    },
+    "claims-workbench": {
+      "calls": 1,
+      "cost_usd": 0.001719,
+      "loc": 2,
+      "by_model": {
+        "gemini-3.5-flash": {
+          "calls": 1,
+          "cost_usd": 0.001719,
+          "input_tokens": 3005,
+          "input_tokens_cached": 0,
+          "output_tokens": 327
+        }
+      }
+    },
+    "web": {
+      "calls": 22,
+      "cost_usd": 0.095834,
+      "loc": 750,
+      "by_model": {
+        "gemini-3.5-flash": {
+          "calls": 22,
+          "cost_usd": 0.095834,
+          "input_tokens": 96361,
+          "input_tokens_cached": 3972,
+          "output_tokens": 26650
+        }
+      }
+    }
+  },
+  "task_type_breakdown": {
+    "project_config": {
+      "calls": 6,
+      "cost_usd": 0.004217
+    },
+    "test_config": {
+      "calls": 1,
+      "cost_usd": 0.000402
+    },
+    "prisma_schema": {
+      "calls": 1,
+      "cost_usd": 0.002554
+    },
+    "seed_data": {
+      "calls": 1,
+      "cost_usd": 0.001171
+    },
+    "service_method": {
+      "calls": 11,
+      "cost_usd": 0.028611
+    },
+    "guard": {
+      "calls": 2,
+      "cost_usd": 0.002612
+    },
+    "decorator": {
+      "calls": 3,
+      "cost_usd": 0.002494
+    },
+    "interceptor": {
+      "calls": 1,
+      "cost_usd": 0.002731
+    },
+    "filter": {
+      "calls": 1,
+      "cost_usd": 0.001878
+    },
+    "middleware": {
+      "calls": 2,
+      "cost_usd": 0.23967
+    },
+    "dto": {
+      "calls": 10,
+      "cost_usd": 0.005812
+    },
+    "controller_handler": {
+      "calls": 4,
+      "cost_usd": 0.00887
+    },
+    "module_wiring": {
+      "calls": 6,
+      "cost_usd": 0.005496
+    },
+    "fsm": {
+      "calls": 1,
+      "cost_usd": 0.001969
+    },
+    "bootstrap": {
+      "calls": 1,
+      "cost_usd": 0.001219
+    },
+    "test_integration": {
+      "calls": 5,
+      "cost_usd": 0.019183
+    },
+    "readme_section": {
+      "calls": 1,
+      "cost_usd": 0.003189
+    },
+    "architecture_doc": {
+      "calls": 1,
+      "cost_usd": 0.004826
+    },
+    "adr_draft": {
+      "calls": 6,
+      "cost_usd": 0.025846
+    },
+    "frontend_config": {
+      "calls": 6,
+      "cost_usd": 0.00913
+    },
+    "frontend_html": {
+      "calls": 1,
+      "cost_usd": 0.000845
+    },
+    "react_page": {
+      "calls": 7,
+      "cost_usd": 0.04153
+    },
+    "frontend_util": {
+      "calls": 1,
+      "cost_usd": 0.003559
+    },
+    "api_client": {
+      "calls": 1,
+      "cost_usd": 0.006097
+    },
+    "react_component": {
+      "calls": 6,
+      "cost_usd": 0.034673
+    }
+  },
+  "artifacts": {
+    "files": 85,
+    "loc": 3728,
+    "tests": 0,
+    "test_pass_rate": 0,
+    "build_ok": false,
+    "ts_errors": 142,
+    "envelope_leaks": 0,
+    "prisma_generate_ok": false,
+    "tests_passed": 0,
+    "tests_failed": 0
+  },
+  "synthesized": false,
+  "reproducibility": {
+    "brief_sha256": "5e4b6e51df64e9ee66e5ce341cb0b02e2f57e42c85d2e3c8a3f140d7df171445",
+    "design_sha256": "39299aca9dfd25a92f3c79f0656a4c69516e0cb75cb0ad981fc4ec4c775c1fe0",
+    "policy_sha256": "d569409c66e1d8a07a3a17827d9c86aff0079fc5ff7809080aad1aa8b40aac55",
+    "authored_at": "2026-05-26T05:21:25.411Z",
+    "model_actual": "claude-opus-4-7",
+    "model_requested": "claude-opus-4-7"
+  }
+}

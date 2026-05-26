@@ -1,0 +1,328 @@
+{
+  "pass": "sonnet-4-6",
+  "pass_label": "Pass 3: Sonnet 4.6 only",
+  "policy_name": "sonnet-4-6",
+  "study": "yotsuba-claims",
+  "started_at": "2026-05-26T04:14:48.923Z",
+  "ended_at": "2026-05-26T06:07:38.787Z",
+  "duration_sec": 6770,
+  "total_cost_usd": 10.707977,
+  "total_input_tokens": 1056529,
+  "total_input_tokens_cached": 914800,
+  "total_output_tokens": 484266,
+  "cache_hit_rate": 0.464052,
+  "total_round_trips": 101,
+  "latency_ms_p50": 40292,
+  "latency_ms_p95": 259558,
+  "model_breakdown": {
+    "claude-sonnet-4-6": {
+      "calls": 86,
+      "cost_usd": 10.707977,
+      "input_tokens": 1056529,
+      "input_tokens_cached": 914800,
+      "output_tokens": 484266,
+      "loc": 18705
+    }
+  },
+  "phase_breakdown": {
+    "codegen": {
+      "calls": 73,
+      "cost_usd": 7.591878,
+      "models": [
+        "claude-sonnet-4-6"
+      ],
+      "by_model": {
+        "claude-sonnet-4-6": {
+          "calls": 73,
+          "cost_usd": 7.591878,
+          "input_tokens": 835098,
+          "input_tokens_cached": 740988,
+          "output_tokens": 324288
+        }
+      }
+    },
+    "tests": {
+      "calls": 5,
+      "cost_usd": 1.687527,
+      "models": [
+        "claude-sonnet-4-6"
+      ],
+      "by_model": {
+        "claude-sonnet-4-6": {
+          "calls": 5,
+          "cost_usd": 1.687527,
+          "input_tokens": 84582,
+          "input_tokens_cached": 82332,
+          "output_tokens": 93939
+        }
+      }
+    },
+    "docs": {
+      "calls": 8,
+      "cost_usd": 1.428572,
+      "models": [
+        "claude-sonnet-4-6"
+      ],
+      "by_model": {
+        "claude-sonnet-4-6": {
+          "calls": 8,
+          "cost_usd": 1.428572,
+          "input_tokens": 136849,
+          "input_tokens_cached": 91480,
+          "output_tokens": 66039
+        }
+      }
+    }
+  },
+  "module_breakdown": {
+    "cross": {
+      "calls": 29,
+      "cost_usd": 2.811904,
+      "loc": 4583,
+      "by_model": {
+        "claude-sonnet-4-6": {
+          "calls": 29,
+          "cost_usd": 2.811904,
+          "input_tokens": 276242,
+          "input_tokens_cached": 292736,
+          "output_tokens": 126358
+        }
+      }
+    },
+    "auth": {
+      "calls": 7,
+      "cost_usd": 0.356885,
+      "loc": 792,
+      "by_model": {
+        "claude-sonnet-4-6": {
+          "calls": 7,
+          "cost_usd": 0.356885,
+          "input_tokens": 49434,
+          "input_tokens_cached": 64036,
+          "output_tokens": 12625
+        }
+      }
+    },
+    "audit": {
+      "calls": 3,
+      "cost_usd": 0.129075,
+      "loc": 295,
+      "by_model": {
+        "claude-sonnet-4-6": {
+          "calls": 3,
+          "cost_usd": 0.129075,
+          "input_tokens": 13651,
+          "input_tokens_cached": 27444,
+          "output_tokens": 5326
+        }
+      }
+    },
+    "claims": {
+      "calls": 11,
+      "cost_usd": 1.315481,
+      "loc": 2148,
+      "by_model": {
+        "claude-sonnet-4-6": {
+          "calls": 11,
+          "cost_usd": 1.315481,
+          "input_tokens": 128368,
+          "input_tokens_cached": 118924,
+          "output_tokens": 59647
+        }
+      }
+    },
+    "reserves": {
+      "calls": 8,
+      "cost_usd": 1.14251,
+      "loc": 2328,
+      "by_model": {
+        "claude-sonnet-4-6": {
+          "calls": 8,
+          "cost_usd": 1.14251,
+          "input_tokens": 102500,
+          "input_tokens_cached": 91480,
+          "output_tokens": 53838
+        }
+      }
+    },
+    "appi": {
+      "calls": 4,
+      "cost_usd": 0.493507,
+      "loc": 960,
+      "by_model": {
+        "claude-sonnet-4-6": {
+          "calls": 4,
+          "cost_usd": 0.493507,
+          "input_tokens": 39389,
+          "input_tokens_cached": 45740,
+          "output_tokens": 24108
+        }
+      }
+    },
+    "claims-fnol": {
+      "calls": 1,
+      "cost_usd": 0.428476,
+      "loc": 0,
+      "by_model": {
+        "claude-sonnet-4-6": {
+          "calls": 1,
+          "cost_usd": 0.428476,
+          "input_tokens": 20996,
+          "input_tokens_cached": 18296,
+          "output_tokens": 24000
+        }
+      }
+    },
+    "claims-workbench": {
+      "calls": 1,
+      "cost_usd": 0.420118,
+      "loc": 1018,
+      "by_model": {
+        "claude-sonnet-4-6": {
+          "calls": 1,
+          "cost_usd": 0.420118,
+          "input_tokens": 21000,
+          "input_tokens_cached": 18296,
+          "output_tokens": 23442
+        }
+      }
+    },
+    "web": {
+      "calls": 22,
+      "cost_usd": 3.610021,
+      "loc": 6581,
+      "by_model": {
+        "claude-sonnet-4-6": {
+          "calls": 22,
+          "cost_usd": 3.610021,
+          "input_tokens": 404949,
+          "input_tokens_cached": 237848,
+          "output_tokens": 154922
+        }
+      }
+    }
+  },
+  "task_type_breakdown": {
+    "project_config": {
+      "calls": 6,
+      "cost_usd": 0.129081
+    },
+    "test_config": {
+      "calls": 1,
+      "cost_usd": 0.037553
+    },
+    "prisma_schema": {
+      "calls": 1,
+      "cost_usd": 0.048104
+    },
+    "seed_data": {
+      "calls": 1,
+      "cost_usd": 0.339106
+    },
+    "service_method": {
+      "calls": 11,
+      "cost_usd": 1.527358
+    },
+    "guard": {
+      "calls": 2,
+      "cost_usd": 0.137476
+    },
+    "decorator": {
+      "calls": 3,
+      "cost_usd": 0.172698
+    },
+    "interceptor": {
+      "calls": 1,
+      "cost_usd": 0.080525
+    },
+    "filter": {
+      "calls": 1,
+      "cost_usd": 0.083708
+    },
+    "middleware": {
+      "calls": 2,
+      "cost_usd": 0.115681
+    },
+    "dto": {
+      "calls": 10,
+      "cost_usd": 0.486713
+    },
+    "controller_handler": {
+      "calls": 4,
+      "cost_usd": 0.384761
+    },
+    "module_wiring": {
+      "calls": 6,
+      "cost_usd": 0.29316
+    },
+    "fsm": {
+      "calls": 1,
+      "cost_usd": 0.08804
+    },
+    "bootstrap": {
+      "calls": 1,
+      "cost_usd": 0.057893
+    },
+    "test_integration": {
+      "calls": 5,
+      "cost_usd": 1.687527
+    },
+    "readme_section": {
+      "calls": 1,
+      "cost_usd": 0.313246
+    },
+    "architecture_doc": {
+      "calls": 1,
+      "cost_usd": 0.304423
+    },
+    "adr_draft": {
+      "calls": 6,
+      "cost_usd": 0.810903
+    },
+    "frontend_config": {
+      "calls": 6,
+      "cost_usd": 0.283356
+    },
+    "frontend_html": {
+      "calls": 1,
+      "cost_usd": 0.031073
+    },
+    "react_page": {
+      "calls": 7,
+      "cost_usd": 2.191114
+    },
+    "frontend_util": {
+      "calls": 1,
+      "cost_usd": 0.111389
+    },
+    "api_client": {
+      "calls": 1,
+      "cost_usd": 0.145502
+    },
+    "react_component": {
+      "calls": 6,
+      "cost_usd": 0.847587
+    }
+  },
+  "artifacts": {
+    "files": 84,
+    "loc": 18705,
+    "tests": 0,
+    "test_pass_rate": 0,
+    "build_ok": false,
+    "ts_errors": 316,
+    "envelope_leaks": 0,
+    "prisma_generate_ok": false,
+    "tests_passed": 0,
+    "tests_failed": 0
+  },
+  "synthesized": false,
+  "reproducibility": {
+    "brief_sha256": "5e4b6e51df64e9ee66e5ce341cb0b02e2f57e42c85d2e3c8a3f140d7df171445",
+    "design_sha256": "39299aca9dfd25a92f3c79f0656a4c69516e0cb75cb0ad981fc4ec4c775c1fe0",
+    "policy_sha256": "f8b6fa425192e93e0749da77f9957119b1a9bf76242dc2a7fc2bae664a3fd2e9",
+    "authored_at": "2026-05-26T06:07:38.802Z",
+    "model_actual": "claude-sonnet-4-6",
+    "model_requested": "claude-sonnet-4-6"
+  }
+}

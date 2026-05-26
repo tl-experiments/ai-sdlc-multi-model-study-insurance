@@ -4,8 +4,17 @@
  * whichever policy YAML the user picked) — this module only does the math.
  */
 export function computeCostUsd(tokens, pricing) {
-    const inputFresh = tokens.input - tokens.input_cached;
-    const inputFreshCost = (inputFresh / 1_000_000) * pricing.input;
+    // Convention: `tokens.input` is the FRESH input-token count (what was
+    // charged at the standard input rate, including cache-creation tokens
+    // since those are billed at the input rate). `tokens.input_cached` is
+    // the cache-read count (billed at the discounted cached rate). Both are
+    // already disjoint — DO NOT subtract one from the other.
+    //
+    // Previous bug: this function subtracted cached from input, which
+    // produced negative costs whenever the cache was effective (cached >
+    // fresh). That also broke the budget guard in run-pass.mjs because
+    // cumulative cost went down instead of up.
+    const inputFreshCost = (tokens.input / 1_000_000) * pricing.input;
     const inputCachedCost = (tokens.input_cached / 1_000_000) * pricing.input_cached;
     const outputCost = (tokens.output / 1_000_000) * pricing.output;
     return round6(inputFreshCost + inputCachedCost + outputCost);
