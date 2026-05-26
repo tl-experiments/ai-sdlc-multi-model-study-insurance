@@ -264,21 +264,57 @@ function stripFences(s) {
   return s.replace(/^```[a-zA-Z]*\n/, "").replace(/\n```\s*$/, "").trim();
 }
 
+// Robust content extractor. Models hand back a variety of shapes:
+//   (a) raw JSON object {"content": "..."}                   (Opus/Sonnet)
+//   (b) markdown-fenced JSON ```json\n{"content":"..."}\n``` (Haiku)
+//   (c) double-wrapped (the model put a JSON-envelope INSIDE the content
+//       field — observed with Haiku on schema-driven tasks)
+//   (d) raw file content with no envelope at all              (sometimes Haiku)
+// We try each in order; the first that yields a non-trivial string wins.
 function extractContent(raw) {
   if (raw == null) return "";
-  if (typeof raw === "string") {
-    // JSON envelope leak?
-    if (raw.trim().startsWith("{") && raw.includes('"content"')) {
-      try { return stripFences(JSON.parse(raw).content ?? raw); } catch {}
+
+  // (1) Already-parsed object from adapter
+  if (typeof raw === "object" && raw !== null) {
+    if (typeof raw.content === "string") return unwrap(raw.content);
+    if (typeof raw.raw === "string")     return unwrap(raw.raw);
+    return stripFences(JSON.stringify(raw));
+  }
+
+  // (2) Raw string
+  if (typeof raw === "string") return unwrap(raw);
+  return stripFences(String(raw));
+}
+
+// Peel layers of JSON envelope + markdown fences off a string until the
+// inner content stabilizes. Caps depth at 3 to avoid pathological loops.
+function unwrap(s) {
+  let cur = stripFences(s).trim();
+  for (let depth = 0; depth < 3; depth++) {
+    if (cur.startsWith("{") && cur.includes('"content"')) {
+      try {
+        const obj = JSON.parse(cur);
+        if (obj && typeof obj.content === "string") {
+          cur = stripFences(obj.content).trim();
+          continue;
+        }
+      } catch {
+        // Fall through to regex-based extraction below
+      }
+      // Regex fallback for JSON-shaped-but-not-quite-valid output (e.g. literal
+      // newlines inside the string value). Grabs the value of the first
+      // "content" key and JSON-unescapes common escapes.
+      const m = cur.match(/^\s*\{\s*"content"\s*:\s*"([\s\S]*)"\s*\}\s*$/);
+      if (m) {
+        cur = m[1]
+          .replace(/\\n/g, "\n").replace(/\\r/g, "\r").replace(/\\t/g, "\t")
+          .replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+        continue;
+      }
     }
-    return stripFences(raw);
+    break;
   }
-  if (raw.content != null) return stripFences(raw.content);
-  if (raw.raw) {
-    try { return stripFences(JSON.parse(raw.raw).content ?? raw.raw); }
-    catch { return stripFences(raw.raw); }
-  }
-  return stripFences(JSON.stringify(raw));
+  return cur;
 }
 
 // ──────────────────── adapter (lazy import) ────────────────────
@@ -375,7 +411,10 @@ Return ONLY a JSON object: \`{"content": "<the complete file as a string>"}\`. N
     })) : [],
     outputSchema: { type: "object", properties: { content: { type: "string" } }, required: ["content"] },
     acceptance: ["matches design.md", "production-quality TS", "no placeholders"],
-    budget: { maxInputTokens: 20000, maxOutputTokens: 4000 },
+    // 8k output is roughly 400-600 LOC of dense TypeScript — comfortably covers
+    // every file in the Yotsuba file list (the largest are seed.ts and the
+    // Prisma schema at ~200 LOC). 4k was too tight and got truncated silently.
+    budget: { maxInputTokens: 20000, maxOutputTokens: 8000 },
     retry_count: 0,
     pass_id: policyName,
   };
@@ -396,16 +435,31 @@ Return ONLY a JSON object: \`{"content": "<the complete file as a string>"}\`. N
     if (!content || content.length < 5) success = false;
   }
 
-  // Retry once on failure with 2× output budget
+  // Heuristic: output-token count near the requested ceiling almost
+  // always means the response was truncated. Treat that as a failure
+  // even if the adapter reported success.
+  const outputCeiling = packet.budget.maxOutputTokens;
+  const likelyTruncated = (result.tokens.output ?? 0) >= outputCeiling - 50;
+  if (success && likelyTruncated) {
+    success = false;
+    console.log(`  ⚠  ${rel}  likely truncated (${result.tokens.output}/${outputCeiling} output tokens — retrying)`);
+  }
+
+  // Retry once on any failure with 2× output budget. Captures both
+  //   - hard adapter failures (4xx, 5xx, JSON parse errors)
+  //   - silent truncations (output hit the ceiling)
+  //   - empty/short output (envelope leak that extractContent couldn't recover)
   let retryCount = 0;
-  if (!success && result.success === false && /max_tokens|truncated|MAX_TOKENS/i.test(result.error ?? "")) {
+  if (!success) {
     retryCount = 1;
-    console.log(`  ↻ retry ${rel}  (truncation/leak; doubling output budget)`);
-    packet.budget.maxOutputTokens = Math.min(8192, packet.budget.maxOutputTokens * 2);
+    const oldCeiling = packet.budget.maxOutputTokens;
+    packet.budget.maxOutputTokens = Math.min(16000, oldCeiling * 2);
+    console.log(`  ↻ retry ${rel}  (output ceiling ${oldCeiling} → ${packet.budget.maxOutputTokens})`);
     const r2 = await adapter.execute(packet);
     if (r2.success) {
       content = extractContent(r2.result);
-      success = !!content && content.length >= 5;
+      const r2Truncated = (r2.tokens.output ?? 0) >= packet.budget.maxOutputTokens - 50;
+      success = !!content && content.length >= 5 && !r2Truncated;
       // merge tokens/cost for accounting
       result.tokens.input += r2.tokens.input;
       result.tokens.input_cached += r2.tokens.input_cached;
