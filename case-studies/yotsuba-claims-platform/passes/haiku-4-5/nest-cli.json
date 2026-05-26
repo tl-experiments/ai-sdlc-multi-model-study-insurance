@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli.json",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": false,
+    "tsConfigPath": "tsconfig.json"
+  },
+  "generateOptions": {
+    "spec": true,
+    "flat": false
+  },
+  "monorepo": false,
+  "root": "."
+}

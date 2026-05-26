@@ -1,0 +1,125 @@
+# ─────────────────────────────────────────────────────────────────────────
+# Yotsuba Insurance Holdings · Claims Processing Platform
+# Git ignore rules.
+#
+# Scope: backend (NestJS + Prisma) at the repo root, plus the Adjuster
+# Workbench under `web/` (Vite + React + Tailwind). Anything generated,
+# secret, machine-local, or large-binary belongs here.
+# ─────────────────────────────────────────────────────────────────────────
+
+# ─── 1. Node / package managers ──────────────────────────────────────────
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store/
+.npm/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.yarnrc
+
+# ─── 2. Build output ─────────────────────────────────────────────────────
+# Backend (NestJS → dist) and frontend (Vite → web/dist).
+dist/
+build/
+out/
+web/dist/
+web/build/
+*.tsbuildinfo
+.tsbuildinfo
+
+# ─── 3. Test / coverage artifacts ────────────────────────────────────────
+coverage/
+.nyc_output/
+junit.xml
+test-results/
+*.lcov
+
+# ─── 4. Environment & secrets ────────────────────────────────────────────
+# `.env.example` is the ONLY env file that may be committed. Everything
+# else is per-developer / per-environment and may contain secrets.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+.secrets/
+
+# ─── 5. Prisma ───────────────────────────────────────────────────────────
+# Generated client lives under node_modules/.prisma but Prisma may also
+# emit migration shadow files and a local SQLite shadow during dev.
+prisma/*.db
+prisma/*.db-journal
+prisma/migrations/dev.db*
+prisma/.cache/
+
+# ─── 6. Logs ─────────────────────────────────────────────────────────────
+logs/
+*.log
+pino-*.log
+
+# ─── 7. Editor / IDE ─────────────────────────────────────────────────────
+.vscode/*
+!.vscode/settings.json.example
+!.vscode/extensions.json
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+.history/
+
+# ─── 8. OS metadata ──────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ─── 9. Vite / frontend caches ───────────────────────────────────────────
+web/.vite/
+web/.cache/
+web/.eslintcache
+.vite/
+
+# ─── 10. Tool caches ─────────────────────────────────────────────────────
+.eslintcache
+.stylelintcache
+.prettiercache
+.cache/
+.parcel-cache/
+.turbo/
+.swc/
+
+# ─── 11. Evidence blob stub (local-only scratch) ─────────────────────────
+# Track A stubs blob storage; if a developer points the stub at a local
+# path, keep its contents out of the repo.
+/tmp-evidence/
+evidence-blobs/
+
+# ─── 12. Misc local scratch ──────────────────────────────────────────────
+*.local
+*.bak
+*.orig
+*.rej
+.pid
+*.pid
+*.seed
+*.pid.lock
+
+# ─── 13. Verification / orchestrator artifacts ───────────────────────────
+# `tools/verify.mjs` and the orchestrator may emit per-pass reports.
+.verify-cache/
+.pass-artifacts/

@@ -1,0 +1,272 @@
+// This is the Prisma schema for the Yotsuba Insurance Claims Processing Platform.
+// Database: PostgreSQL 16
+// Generated client: @prisma/client
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Identity & RBAC ────────────────────────────────────────────────────────
+
+model User {
+  id                String   @id @default(cuid())
+  username          String   @unique
+  password_hash     String
+  role              UserRole
+  display_name      String
+  email             String   @unique
+  reports_to_id     String?
+  reports_to        User?    @relation("Reports", fields: [reports_to_id], references: [id])
+  reports           User[]   @relation("Reports")
+  is_claims_director Boolean @default(false)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  deleted_at        DateTime?
+
+  // Relations
+  assigned_claims   Claim[]  @relation("Assignee")
+  created_claims    Claim[]  @relation("CreatedBy")
+  audit_events      AuditEvent[] @relation("Actor")
+  notes_authored    ClaimNote[] @relation("Author")
+  evidence_uploaded Evidence[] @relation("UploadedBy")
+  witness_recorded  WitnessStatement[] @relation("RecordedBy")
+  reserves_proposed Reserve[] @relation("ProposedBy")
+  reserves_approved Reserve[] @relation("ApprovedBy")
+  reserves_director_approved Reserve[] @relation("DirectorApprovedBy")
+
+  @@index([role])
+  @@index([reports_to_id])
+}
+
+enum UserRole {
+  agent
+  adjuster
+  manager
+  auditor
+  siu_referrer
+}
+
+// ─── Claims ─────────────────────────────────────────────────────────────────
+
+model Claim {
+  id                          String      @id @default(cuid())
+  policy_number               String
+  loss_date                   DateTime
+  loss_location_prefecture    String      // 都道府県 (validated against known list)
+  loss_location_postal_code   String      // 7-digit format
+  loss_location_detail        String      // Free-text address detail
+  reported_by_channel         IntakeChannel
+  reporter_name               String      // Standard PII
+  reporter_phone_ct           Bytes?      // APPI special-care; encrypted blob
+  reporter_email_ct           Bytes?      // APPI special-care; encrypted blob
+  reporter_relation_to_insured String     // 本人/家族/代理店/事故相手方 etc.
+  incident_type               IncidentType
+  initial_description         String      // Free-text claim description
+  injury_reported             Boolean     @default(false)
+  third_party_involved        Boolean     @default(false)
+  police_report_number        String?
+  severity_initial            ClaimSeverity
+  status                      ClaimStatus @default(intake)
+  appi_consent_version        String      // e.g. "1.0"
+  appi_consent_at             DateTime
+  assigned_adjuster_id        String?
+  assigned_adjuster           User?       @relation(name: "Assignee", fields: [assigned_adjuster_id], references: [id])
+  assigned_at                 DateTime?
+  assigned_by_id              String?
+  reason_for_reassignment     String?
+  insured_government_id_ct    Bytes?      // APPI Article 17 special-care (encrypted)
+  bank_account_for_payout_ct  Bytes?      // APPI Article 17 special-care (encrypted)
+  injury_details_ct           Bytes?      // APPI Article 17 special-care (encrypted)
+  created_by_id               String?
+  created_by                  User?       @relation(name: "CreatedBy", fields: [created_by_id], references: [id])
+  created_at                  DateTime    @default(now())
+  updated_at                  DateTime    @updatedAt
+
+  // Relations
+  notes             ClaimNote[]
+  evidence          Evidence[]
+  witness_statements WitnessStatement[]
+  reserves          Reserve[]
+  audit_events      AuditEvent[]
+
+  @@index([assigned_adjuster_id, status])
+  @@index([incident_type, status])
+  @@index([loss_date])
+  @@index([policy_number])
+  @@index([status])
+  @@index([severity_initial])
+}
+
+enum IntakeChannel {
+  agent
+  mobile
+  broker
+  email
+}
+
+enum IncidentType {
+  auto_collision
+  auto_property_damage
+  fire_residential
+  fire_commercial
+  marine_cargo
+  liability_premises
+  personal_accident
+}
+
+enum ClaimSeverity {
+  simple
+  complex
+  catastrophic
+}
+
+enum ClaimStatus {
+  intake
+  under_investigation
+  awaiting_reserve_approval
+  settlement_offered
+  closed_paid
+  closed_denied
+  reopened
+}
+
+// ─── Notes (Immutable Append-Only) ──────────────────────────────────────────
+
+model ClaimNote {
+  id          String   @id @default(cuid())
+  claim_id    String
+  claim       Claim    @relation(fields: [claim_id], references: [id], onDelete: Cascade)
+  author_id   String
+  author      User     @relation(name: "Author", fields: [author_id], references: [id])
+  body        String
+  created_at  DateTime @default(now())
+
+  @@index([claim_id, created_at])
+  @@index([author_id])
+}
+
+// ─── Evidence (Immutable Append-Only) ───────────────────────────────────────
+
+model Evidence {
+  id              String   @id @default(cuid())
+  claim_id        String
+  claim           Claim    @relation(fields: [claim_id], references: [id], onDelete: Cascade)
+  kind            EvidenceKind
+  content_hash    String   // SHA-256 of the blob; blob storage stubbed
+  blob_ref        String   // e.g. s3://stub/...
+  uploaded_by_id  String
+  uploaded_by     User     @relation(name: "UploadedBy", fields: [uploaded_by_id], references: [id])
+  uploaded_at     DateTime @default(now())
+
+  @@index([claim_id, uploaded_at])
+  @@index([content_hash])
+}
+
+enum EvidenceKind {
+  photo
+  document
+  audio
+  video
+  witness_statement_attachment
+}
+
+// ─── Witness Statements (Immutable Append-Only) ─────────────────────────────
+
+model WitnessStatement {
+  id              String   @id @default(cuid())
+  claim_id        String
+  claim           Claim    @relation(fields: [claim_id], references: [id], onDelete: Cascade)
+  witness_name    String
+  witness_phone_ct Bytes?  // APPI standard PII; encrypted
+  statement_body  String
+  inkan_seal_hash String   // SHA-256 of canonical statement+timestamp (digital seal)
+  recorded_by_id  String
+  recorded_by     User     @relation(name: "RecordedBy", fields: [recorded_by_id], references: [id])
+  recorded_at     DateTime @default(now())
+
+  @@index([claim_id, recorded_at])
+  @@index([inkan_seal_hash])
+}
+
+// ─── Reserves ───────────────────────────────────────────────────────────────
+
+model Reserve {
+  id                      String          @id @default(cuid())
+  claim_id                String
+  claim                   Claim           @relation(fields: [claim_id], references: [id], onDelete: Cascade)
+  category                ReserveCategory
+  proposed_yen            Decimal         @db.Decimal(15, 0) // No float for currency
+  prior_yen               Decimal?        @db.Decimal(15, 0)
+  justification           String          // >= 50 chars enforced at service layer
+  proposed_by_id          String
+  proposed_by             User            @relation(name: "ProposedBy", fields: [proposed_by_id], references: [id])
+  proposed_at             DateTime        @default(now())
+  approval_status         ApprovalStatus  @default(pending)
+  approved_by_id          String?
+  approved_by             User?           @relation(name: "ApprovedBy", fields: [approved_by_id], references: [id])
+  approved_at             DateTime?
+  director_approved_by_id String?
+  director_approved_by    User?           @relation(name: "DirectorApprovedBy", fields: [director_approved_by_id], references: [id])
+  director_approved_at    DateTime?
+  reason_for_rejection    String?
+
+  @@index([claim_id, proposed_at])
+  @@index([approval_status])
+  @@index([proposed_by_id])
+}
+
+enum ReserveCategory {
+  loss_paid
+  loss_unpaid
+  alae      // Allocated Loss Adjustment Expense
+  ulae      // Unallocated Loss Adjustment Expense
+}
+
+enum ApprovalStatus {
+  pending
+  approved
+  rejected
+}
+
+// ─── JFSA Notifications (Regulatory Threshold) ──────────────────────────────
+
+model NotificationToRegulator {
+  id          String   @id @default(cuid())
+  kind        String   // e.g. "jfsa_reserve_threshold"
+  claim_id    String
+  reserve_id  String
+  amount_yen  Decimal  @db.Decimal(15, 0)
+  triggered_at DateTime @default(now())
+  sent_at     DateTime? // null until daily batch flushes
+
+  @@index([kind, triggered_at])
+  @@index([sent_at])
+}
+
+// ─── Audit Log (Immutable Append-Only) ──────────────────────────────────────
+
+model AuditEvent {
+  id              String   @id @default(cuid())
+  actor_id        String
+  actor           User     @relation(name: "Actor", fields: [actor_id], references: [id])
+  actor_role      UserRole
+  action          String   // e.g. "claim.created", "reserve.approved", "evidence.added"
+  claim_id        String?
+  claim           Claim?   @relation(fields: [claim_id], references: [id], onDelete: SetNull)
+  target_id       String?  // ID of the resource being acted upon (reserve_id, note_id, etc.)
+  payload_hash    String   // SHA-256 of normalized event payload
+  request_id      String   // Unique per HTTP request
+  correlation_id  String   // Propagated across service calls
+  ts              DateTime @default(now())
+
+  @@index([actor_id, ts])
+  @@index([claim_id, ts])
+  @@index([action, ts])
+  @@index([request_id])
+  @@index([correlation_id])
+}

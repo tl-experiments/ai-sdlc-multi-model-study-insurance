@@ -1,0 +1,299 @@
+/*
+ * Global stylesheet for the Yotsuba Adjuster Workbench.
+ *
+ * This file is the single Tailwind entry point referenced by `main.tsx`.
+ * Vite + PostCSS (see `postcss.config.cjs`) expand the three `@tailwind`
+ * directives below into the full utility stylesheet at build time, using
+ * the tokens declared in `tailwind.config.cjs` (status / severity / role
+ * palettes).
+ *
+ * Anything beyond the three directives is a small, deliberately scoped set
+ * of base-layer tweaks and a handful of reusable component classes for UI
+ * primitives that recur across pages (status pills, severity pills, role
+ * badges, the claim-queue table). Page-specific styling stays in the
+ * components themselves using Tailwind utilities — this file should remain
+ * lean.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ───────────────────────── base layer ───────────────────────── */
+@layer base {
+  /*
+   * `index.html` preloads the Inter webfont from rsms.me. We declare it
+   * here as the primary sans stack so Tailwind's `font-sans` utility (and
+   * the `<body>` default) resolves to Inter when available, gracefully
+   * falling back to the system UI font on offline / restricted networks.
+   */
+  html {
+    font-family:
+      'Inter',
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      Roboto,
+      'Helvetica Neue',
+      Arial,
+      'Hiragino Kaku Gothic ProN',
+      'Hiragino Sans',
+      Meiryo,
+      sans-serif;
+    /* Slight optical correction for Inter at the sizes the workbench uses. */
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
+    text-rendering: optimizeLegibility;
+  }
+
+  /*
+   * The workbench is a dense, table-heavy SPA. A tighter default line
+   * height keeps claim rows scannable without forcing per-component
+   * overrides.
+   */
+  body {
+    line-height: 1.5;
+  }
+
+  /*
+   * Tabular numbers for any element that displays a yen amount, a claim
+   * count, or a date column. Components opt-in via the `tabular-nums`
+   * utility from Tailwind; this rule just makes sure the underlying font
+   * feature is honoured by browsers that strip it on `<input>` elements.
+   */
+  input[type='number'],
+  input[type='text'].is-numeric,
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /*
+   * Visible focus ring across the whole app. Insurance reviewers test for
+   * keyboard accessibility; the default Tailwind `focus-visible` is fine,
+   * but we promote it to the standard focus ring so older keyboard nav
+   * (without `:focus-visible` support) still surfaces a ring.
+   */
+  :focus-visible {
+    outline: 2px solid theme('colors.brand.500');
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /*
+   * Disable the default iOS tap highlight on interactive elements — the
+   * workbench is desktop-first but adjusters occasionally consult claims
+   * on tablets in the field.
+   */
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ───────────────────────── components layer ───────────────────────── */
+@layer components {
+  /*
+   * Pill primitive used by ClaimStatusPill / SeverityPill / RoleBadge. The
+   * component files supply the colour utilities; this base class enforces
+   * consistent shape, padding, and typography so every pill in the UI is
+   * visually identical regardless of where it is rendered.
+   */
+  .pill {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5
+           text-xs font-medium uppercase tracking-wide
+           ring-1 ring-inset;
+  }
+
+  /*
+   * Standard card surface. ClaimDetail, ReserveApprovals, and the audit
+   * log viewer all use this as their content container. Keeping a single
+   * definition means the platform team can re-skin the workbench by
+   * editing two rules instead of grepping the codebase.
+   */
+  .card {
+    @apply rounded-lg border border-slate-200 bg-white shadow-sm;
+  }
+
+  .card-header {
+    @apply flex items-center justify-between border-b border-slate-200
+           px-4 py-3;
+  }
+
+  .card-body {
+    @apply px-4 py-3;
+  }
+
+  /*
+   * Primary / secondary / danger button shapes. Pages compose these with
+   * disabled states via Tailwind's `disabled:` variants in-line.
+   */
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md
+           px-3 py-2 text-sm font-medium
+           transition-colors duration-150
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1
+           disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply bg-brand-600 text-white hover:bg-brand-700
+           focus-visible:ring-brand-500;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-slate-700 ring-1 ring-inset ring-slate-300
+           hover:bg-slate-50 focus-visible:ring-brand-500;
+  }
+
+  .btn-danger {
+    @apply bg-rose-600 text-white hover:bg-rose-700
+           focus-visible:ring-rose-500;
+  }
+
+  /*
+   * Form-field primitive. `class-validator` errors on the API side surface
+   * here as red ring + helper text via `.field-error`.
+   */
+  .field-label {
+    @apply block text-sm font-medium text-slate-700;
+  }
+
+  .field-input {
+    @apply mt-1 block w-full rounded-md border-slate-300 bg-white
+           px-3 py-2 text-sm text-slate-900 shadow-sm
+           placeholder:text-slate-400
+           focus:border-brand-500 focus:outline-none focus:ring-1
+           focus:ring-brand-500
+           disabled:cursor-not-allowed disabled:bg-slate-50
+           disabled:text-slate-500;
+  }
+
+  .field-textarea {
+    @apply field-input min-h-[6rem] resize-y;
+  }
+
+  .field-error {
+    @apply mt-1 text-xs font-medium text-rose-600;
+  }
+
+  /*
+   * Claim-queue table primitives. The queue is the page adjusters look at
+   * most — its layout deserves a named contract.
+   */
+  .queue-table {
+    @apply w-full border-collapse text-left text-sm;
+  }
+
+  .queue-table thead th {
+    @apply sticky top-0 z-10 border-b border-slate-200 bg-slate-50
+           px-3 py-2 text-xs font-semibold uppercase tracking-wide
+           text-slate-600;
+  }
+
+  .queue-table tbody td {
+    @apply border-b border-slate-100 px-3 py-2 align-middle text-slate-800;
+  }
+
+  .queue-table tbody tr {
+    @apply transition-colors hover:bg-brand-50/40;
+  }
+
+  .queue-table tbody tr.is-selected {
+    @apply bg-brand-50;
+  }
+
+  /*
+   * Filter-chip primitive used by ClaimQueue. Chips are toggleable
+   * pseudo-buttons; the `is-active` variant is applied by the page.
+   */
+  .filter-chip {
+    @apply inline-flex items-center gap-1 rounded-full border
+           border-slate-300 bg-white px-2.5 py-1 text-xs font-medium
+           text-slate-700 transition-colors
+           hover:border-brand-400 hover:text-brand-700
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500;
+  }
+
+  .filter-chip.is-active {
+    @apply border-brand-500 bg-brand-50 text-brand-700;
+  }
+
+  /*
+   * Timeline entry used in ClaimDetail to render notes / status
+   * transitions / evidence additions in chronological order.
+   */
+  .timeline-entry {
+    @apply relative pl-6 pb-4;
+  }
+
+  .timeline-entry::before {
+    content: '';
+    @apply absolute left-2 top-2 h-2 w-2 -translate-x-1/2 rounded-full
+           bg-brand-500 ring-2 ring-white;
+  }
+
+  .timeline-entry::after {
+    content: '';
+    @apply absolute left-2 top-4 bottom-0 w-px -translate-x-1/2 bg-slate-200;
+  }
+
+  .timeline-entry:last-child::after {
+    @apply hidden;
+  }
+
+  /*
+   * Yen-amount emphasis. Reserves and approvals lean on this so figures
+   * never get accidentally rendered with proportional digits.
+   */
+  .yen-amount {
+    @apply font-mono tabular-nums text-slate-900;
+  }
+}
+
+/* ───────────────────────── utilities layer ───────────────────────── */
+@layer utilities {
+  /*
+   * Workbench-specific scrollbar treatment. Adjusters keep the queue open
+   * for hours; the default macOS overlay scrollbar disappears too eagerly
+   * for that workflow, so we render a thin, persistent track.
+   */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.slate.300') transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: theme('colors.slate.300');
+    border-radius: 9999px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: theme('colors.slate.400');
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  /*
+   * Screen-reader-only helper. Used by RoleBadge / pills to expose the
+   * full English term (e.g. "Severity: catastrophic") to assistive tech
+   * while the visible label is abbreviated for density.
+   */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}

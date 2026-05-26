@@ -1,0 +1,122 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+  CREATOR
+}
+
+enum GameStatus {
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  ABANDONED
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  EXPERT
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  username     String        @unique
+  passwordHash String
+  role         Role          @default(USER)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  profile      Profile?
+  crosswords   Crossword[]   @relation("CreatedCrosswords")
+  gameSessions GameSession[]
+  scores       Score[]
+
+  @@map("users")
+}
+
+model Profile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName String?
+  lastName  String?
+  avatarUrl String?
+  bio       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+model Crossword {
+  id          String        @id @default(uuid())
+  title       String
+  description String?
+  difficulty  Difficulty    @default(MEDIUM)
+  width       Int
+  height      Int
+  grid        Json
+  clues       Json
+  solution    Json
+  authorId    String
+  author      User          @relation("CreatedCrosswords", fields: [authorId], references: [id], onDelete: Cascade)
+  isPublished Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  sessions    GameSession[]
+  scores      Score[]
+  categories  Category[]    @relation("CrosswordToCategory")
+
+  @@map("crosswords")
+}
+
+model Category {
+  id         String      @id @default(uuid())
+  name       String      @unique
+  slug       String      @unique
+  crosswords Crossword[] @relation("CrosswordToCategory")
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@map("categories")
+}
+
+model GameSession {
+  id          String     @id @default(uuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  crosswordId String
+  crossword   Crossword  @relation(fields: [crosswordId], references: [id], onDelete: Cascade)
+  status      GameStatus @default(IN_PROGRESS)
+  gridState   Json
+  timeElapsed Int        @default(0)
+  startedAt   DateTime   @default(now())
+  completedAt DateTime?
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([userId, crosswordId])
+  @@map("game_sessions")
+}
+
+model Score {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  crosswordId String
+  crossword   Crossword @relation(fields: [crosswordId], references: [id], onDelete: Cascade)
+  points      Int
+  timeTaken   Int
+  completedAt DateTime  @default(now())
+
+  @@unique([userId, crosswordId])
+  @@map("scores")
+}

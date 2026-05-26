@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Yotsuba Insurance Holdings — Claims Processing Platform · Adjuster Workbench" />
+    <meta name="theme-color" content="#3d42cc" />
+
+    <!-- Security headers via meta where CSP is not set server-side -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <title>Yotsuba Claims · Adjuster Workbench</title>
+
+    <!--
+      Favicon placeholder — production would use real brand assets.
+      Inline SVG data-URI avoids an extra network request in the POC.
+    -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%233d42cc'/%3E%3Ctext x='16' y='22' font-size='18' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='700'%3EY%3C/text%3E%3C/svg%3E"
+    />
+
+    <!--
+      Google Fonts — Inter (UI) + Noto Sans JP (Japanese text support).
+      Loaded with display=swap to avoid FOIT; subset to latin + japanese.
+      In production these would be self-hosted to avoid third-party requests.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!--
+      Open Graph / social sharing — insurance platform should have sensible OG tags
+      even on an internal tool, in case links are shared via enterprise chat.
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Yotsuba Claims · Adjuster Workbench" />
+    <meta
+      property="og:description"
+      content="P&C claims processing platform — FNOL intake to settlement."
+    />
+    <meta property="og:locale" content="en_US" />
+
+    <!--
+      Preload the main entry point so the browser starts fetching it before
+      the module graph is parsed.  Vite rewrites this during build.
+    -->
+    <link rel="modulepreload" href="/src/main.tsx" />
+  </head>
+
+  <body class="h-full bg-gray-50 text-gray-900 antialiased">
+    <!--
+      React mounts here.  The id must stay "root" — App.tsx and main.tsx both
+      reference document.getElementById('root').
+    -->
+    <div id="root" class="h-full"><!--
+      Inline no-JS / pre-hydration shell so the page isn't completely blank
+      while the JS bundle loads.  Kept minimal — the React app replaces this
+      immediately on hydration.
+    -->
+      <div
+        id="__preload_shell"
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+          width: 100vw;
+          background: #f9fafb;
+          font-family: Inter, 'Noto Sans JP', sans-serif;
+        "
+        aria-hidden="true"
+      >
+        <div style="text-align: center; color: #6b7280;">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 32 32"
+            style="margin: 0 auto 12px; display: block;"
+          >
+            <rect width="32" height="32" rx="6" fill="#3d42cc" />
+            <text
+              x="16"
+              y="22"
+              font-size="18"
+              text-anchor="middle"
+              fill="white"
+              font-family="sans-serif"
+              font-weight="700"
+            >Y</text>
+          </svg>
+          <p style="font-size: 0.875rem; margin: 0;">Loading Yotsuba Claims…</p>
+        </div>
+      </div>
+    </div>
+
+    <!--
+      Vite entry point.  type="module" enables native ESM; Vite handles
+      transpilation and bundling for production.
+    -->
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

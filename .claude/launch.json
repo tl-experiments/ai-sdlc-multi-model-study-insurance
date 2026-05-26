@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "yotsuba-opus",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd case-studies/yotsuba-claims-platform/passes/opus-4-7/web && npx vite --port 5174 --host 127.0.0.1"],
+      "port": 5174
+    },
+    {
+      "name": "yotsuba-sonnet",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd case-studies/yotsuba-claims-platform/passes/sonnet-4-6/web && npx vite --port 5175 --host 127.0.0.1"],
+      "port": 5175
+    },
+    {
+      "name": "yotsuba-haiku",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd case-studies/yotsuba-claims-platform/passes/haiku-4-5/web && npx vite --port 5176 --host 127.0.0.1"],
+      "port": 5176
+    },
+    {
+      "name": "yotsuba-orch",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd case-studies/yotsuba-claims-platform/passes/opus-4-7-with-gemini-3-5-flash/web && npx vite --port 5177 --host 127.0.0.1"],
+      "port": 5177
+    }
+  ]
+}
