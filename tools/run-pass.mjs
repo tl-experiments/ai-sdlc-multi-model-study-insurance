@@ -76,14 +76,44 @@ const policyPath = join(ROOT, "plugin", "config", "policies", `${policyName}.yam
 if (!existsSync(policyPath)) { console.error(`policy file not found: ${policyPath}`); process.exit(2); }
 const policy = parseYaml(readFileSync(policyPath, "utf-8"));
 
-// For an author-from-scratch single-model pass, find the "default" model in the policy.
+// Routing strategy:
+//   - If the policy has multiple models AND non-default rules → ORCHESTRATED.
+//     Every file is routed via pickModelForContext (uses the policy's rules).
+//   - Otherwise → SINGLE-MODEL pass; use the policy's default model for every file.
 function pickPrimaryModel() {
   const defaultRule = policy.rules.find((r) => "default" in r);
   const modelId = defaultRule?.default ?? policy.models[0]?.id;
   return policy.models.find((m) => m.id === modelId);
 }
-const model = pickPrimaryModel();
-if (!model) { console.error("policy has no model to author with"); process.exit(2); }
+const isOrchestrated = policy.models.length > 1
+  && policy.rules.some((r) => r.when && r.use);
+const defaultModel = pickPrimaryModel();
+if (!defaultModel) { console.error("policy has no model to author with"); process.exit(2); }
+// Convenience alias for the single-model code paths below.
+const model = defaultModel;
+
+// For orchestrated runs, evaluate the policy's rules against a context object
+// and return the matching model + the rule that fired (for telemetry).
+function pickModelForContext(ctx) {
+  for (let i = 0; i < policy.rules.length; i++) {
+    const r = policy.rules[i];
+    if ("default" in r) continue;
+    const w = r.when ?? {};
+    if (w.phase && w.phase !== ctx.phase) continue;
+    if (w.task_type) {
+      const arr = Array.isArray(w.task_type) ? w.task_type : [w.task_type];
+      if (!arr.includes(ctx.task_type)) continue;
+    }
+    if (w.retry_count && typeof w.retry_count === "object" && "gte" in w.retry_count
+        && (ctx.retry_count ?? 0) < w.retry_count.gte) continue;
+    const m = policy.models.find((mm) => mm.id === r.use);
+    if (m) return { model: m, rule_index: i, rule_reason: r.reason ?? "(no reason)" };
+  }
+  // Fallback: default model
+  const dr = policy.rules.find((r) => "default" in r);
+  const m = policy.models.find((mm) => mm.id === (dr?.default ?? policy.models[0]?.id));
+  return { model: m, rule_index: -1, rule_reason: dr?.reason ?? "default" };
+}
 
 const STUDY_DIR = join(ROOT, study.directory);
 // Smoke mode writes to an isolated subdir so it never contaminates a real pass.
@@ -97,8 +127,14 @@ const designContent = readFileSync(join(STUDY_DIR, "design.md"), "utf-8");
 
 console.log(`\nAuthor-from-scratch driver`);
 console.log(`  study:       ${study.label}`);
-console.log(`  policy:      ${policy.name}`);
-console.log(`  model:       ${model.model_name}  (label: ${model.display_name ?? model.model_name})`);
+console.log(`  policy:      ${policy.name}  (${isOrchestrated ? "ORCHESTRATED, " + policy.models.length + " models" : "single-model"})`);
+if (isOrchestrated) {
+  for (const m of policy.models) {
+    console.log(`    · ${m.id.padEnd(14)} → ${m.model_name}  (${m.display_name ?? m.model_name})`);
+  }
+} else {
+  console.log(`  model:       ${model.model_name}  (label: ${model.display_name ?? model.model_name})`);
+}
 console.log(`  target dir:  ${study.passes_root}/${policyEntry.directory}`);
 console.log(`  budget:      ${Number.isFinite(budgetUsd) ? `$${budgetUsd}` : "unlimited"}`);
 console.log(`  dry-run:     ${isDryRun}`);
@@ -317,14 +353,19 @@ function unwrap(s) {
   return cur;
 }
 
-// ──────────────────── adapter (lazy import) ────────────────────
-let adapter = null;
-async function getAdapter() {
-  if (adapter) return adapter;
+// ──────────────────── adapter cache (lazy, per-model) ────────────────────
+// For single-model passes there's one entry. For orchestrated passes,
+// every model in the policy gets its own adapter so we don't repeatedly
+// reconstruct the Anthropic / Gemini SDK clients per call.
+const adapters = new Map();
+let ADAPTER_MODULE = null;
+async function getAdapter(forModel = model) {
   if (isDryRun) return null;
-  const ADAPTERS = await import(`file://${join(ROOT, "plugin/mcp/gemini-flash-server/dist/adapters/index.js")}`);
-  // BuiltinAnthropicAdapter reads ANTHROPIC_API_KEY from env by default
-  adapter = ADAPTERS.createAdapter(model);
+  if (adapters.has(forModel.id)) return adapters.get(forModel.id);
+  if (!ADAPTER_MODULE) {
+    ADAPTER_MODULE = await import(`file://${join(ROOT, "plugin/mcp/gemini-flash-server/dist/adapters/index.js")}`);
+  }
+  const a = ADAPTER_MODULE.createAdapter(forModel);
   // Prime the system cache with brief + design (Anthropic caches it as ephemeral block)
   const systemHeader = `You are authoring a single file at a time for a P&C insurance claims processing platform. Below is the locked product brief and architectural design. Your output MUST conform to design.md exactly — same exports, same Prisma schema fields, same route paths, same module boundaries.
 
@@ -343,8 +384,9 @@ ${designContent}
 - For Prisma schema: emit the exact model definitions from design.md §1.
 - For tests: import from \`../src/...\`, use Jest + Supertest patterns. Tests must actually run against a Postgres test DB.
 `;
-  adapter.setSystemCache(systemHeader);
-  return adapter;
+  if (typeof a.setSystemCache === "function") a.setSystemCache(systemHeader);
+  adapters.set(forModel.id, a);
+  return a;
 }
 
 // ──────────────────── run ────────────────────
@@ -419,12 +461,20 @@ Return ONLY a JSON object: \`{"content": "<the complete file as a string>"}\`. N
     pass_id: policyName,
   };
 
+  // Route this file's TaskPacket against the policy rules. For single-model
+  // passes this always picks the default; for orchestrated passes it routes
+  // by phase + task_type per the policy YAML.
+  const routed = isOrchestrated
+    ? pickModelForContext({ phase: cat.phase, task_type: cat.task_type, module: cat.module, retry_count: 0 })
+    : { model: defaultModel, rule_index: -1, rule_reason: `single-model pass (${policy.name})` };
+  const callModel = routed.model;
+
   if (isDryRun) {
-    console.log(`  · dry  ${rel.padEnd(50)} ${cat.phase}/${cat.task_type}/${cat.module}  inputs=${ctxFiles.length}`);
+    console.log(`  · dry  ${rel.padEnd(50)} ${cat.phase}/${cat.task_type}/${cat.module}  →  ${callModel.display_name ?? callModel.model_name}  inputs=${ctxFiles.length}`);
     continue;
   }
 
-  const adapter = await getAdapter();
+  const adapter = await getAdapter(callModel);
   const result = await adapter.execute(packet);
   const ts = new Date().toISOString();
 
@@ -455,7 +505,7 @@ Return ONLY a JSON object: \`{"content": "<the complete file as a string>"}\`. N
     const oldCeiling = packet.budget.maxOutputTokens;
     packet.budget.maxOutputTokens = Math.min(16000, oldCeiling * 2);
     console.log(`  ↻ retry ${rel}  (output ceiling ${oldCeiling} → ${packet.budget.maxOutputTokens})`);
-    const r2 = await adapter.execute(packet);
+    const r2 = await (await getAdapter(callModel)).execute(packet);
     if (r2.success) {
       content = extractContent(r2.result);
       const r2Truncated = (r2.tokens.output ?? 0) >= packet.budget.maxOutputTokens - 50;
@@ -473,10 +523,10 @@ Return ONLY a JSON object: \`{"content": "<the complete file as a string>"}\`. N
   const ev = {
     ts, pass: policyName,
     phase: cat.phase, task_type: cat.task_type, task_id: packet.id, module: cat.module,
-    model: model.model_name,
-    model_display: model.display_name ?? model.model_name,
+    model: callModel.model_name,
+    model_display: callModel.display_name ?? callModel.model_name,
     routed_by: "orchestrator",
-    routing: { policy_name: policy.name, policy_version: policy.version, rule_index: -1, rule_reason: `default model in '${policy.name}'` },
+    routing: { policy_name: policy.name, policy_version: policy.version, rule_index: routed.rule_index, rule_reason: routed.rule_reason },
     input_tokens: result.tokens.input,
     input_tokens_cached: result.tokens.input_cached,
     output_tokens: result.tokens.output,
@@ -505,7 +555,8 @@ Return ONLY a JSON object: \`{"content": "<the complete file as a string>"}\`. N
     // already the FRESH-only count (matches the new pricing.ts convention).
     const totalInput = result.tokens.input + result.tokens.input_cached;
     const cacheRatio = totalInput > 0 ? (result.tokens.input_cached / totalInput) : 0;
-    console.log(`  ✓ ${rel.padEnd(50)} ${result.tokens.output.toString().padStart(4)}tok  ${loc.toString().padStart(4)}loc  $${result.cost_usd.toFixed(5)}  ${result.latency_ms}ms  cache=${(cacheRatio * 100).toFixed(0)}%${retryCount ? `  [retry×${retryCount}]` : ""}`);
+    const modelTag = isOrchestrated ? `  [${(callModel.display_name ?? callModel.model_name).split("-").slice(-1)[0].slice(0, 7)}]` : "";
+    console.log(`  ✓ ${rel.padEnd(50)} ${result.tokens.output.toString().padStart(4)}tok  ${loc.toString().padStart(4)}loc  $${result.cost_usd.toFixed(5)}  ${result.latency_ms}ms  cache=${(cacheRatio * 100).toFixed(0)}%${retryCount ? `  [retry×${retryCount}]` : ""}${modelTag}`);
   } else {
     failCount++;
     console.log(`  ✗ ${rel.padEnd(50)} FAIL: ${(ev.error ?? "").slice(0, 60)}…`);
