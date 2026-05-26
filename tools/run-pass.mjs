@@ -503,7 +503,7 @@ Return ONLY a JSON object: \`{"content": "<the complete file as a string>"}\`. N
   if (!success) {
     retryCount = 1;
     const oldCeiling = packet.budget.maxOutputTokens;
-    packet.budget.maxOutputTokens = Math.min(16000, oldCeiling * 2);
+    packet.budget.maxOutputTokens = Math.min(32000, oldCeiling * 2);
     console.log(`  ↻ retry ${rel}  (output ceiling ${oldCeiling} → ${packet.budget.maxOutputTokens})`);
     const r2 = await (await getAdapter(callModel)).execute(packet);
     if (r2.success) {
