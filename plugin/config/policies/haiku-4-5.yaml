@@ -6,8 +6,8 @@ name: haiku-4-5
 models:
   - id: haiku
     adapter: builtin-anthropic
-    # `claude-haiku-4-5` is the label; substitute to the latest GA Haiku.
-    model_name: claude-3-5-haiku-20241022
+    # claude-haiku-4-5 is GA on the Anthropic API as of 2026-05.
+    model_name: claude-haiku-4-5-20251001
     display_name: claude-haiku-4-5
     pricing: { input: 0.80, input_cached: 0.08, output: 4.00 }
     auth: { env: ANTHROPIC_API_KEY }

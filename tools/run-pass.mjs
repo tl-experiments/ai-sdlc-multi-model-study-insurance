@@ -447,7 +447,10 @@ Return ONLY a JSON object: \`{"content": "<the complete file as a string>"}\`. N
     written.push({ rel, content });
     totalLoc += loc;
     okCount++;
-    const cacheRatio = result.tokens.input > 0 ? (result.tokens.input_cached / result.tokens.input) : 0;
+    // Cache hit rate = cached / (fresh + cached). `result.tokens.input` is
+    // already the FRESH-only count (matches the new pricing.ts convention).
+    const totalInput = result.tokens.input + result.tokens.input_cached;
+    const cacheRatio = totalInput > 0 ? (result.tokens.input_cached / totalInput) : 0;
     console.log(`  ✓ ${rel.padEnd(50)} ${result.tokens.output.toString().padStart(4)}tok  ${loc.toString().padStart(4)}loc  $${result.cost_usd.toFixed(5)}  ${result.latency_ms}ms  cache=${(cacheRatio * 100).toFixed(0)}%${retryCount ? `  [retry×${retryCount}]` : ""}`);
   } else {
     failCount++;

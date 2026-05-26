@@ -6,7 +6,7 @@ name: opus-4-7-with-gemini-3-5-flash
 models:
   - id: opus
     adapter: builtin-anthropic
-    model_name: claude-opus-4-20250514
+    model_name: claude-opus-4-7
     display_name: claude-opus-4-7
     pricing: { input: 15.00, input_cached: 1.50, output: 75.00 }
     auth: { env: ANTHROPIC_API_KEY }

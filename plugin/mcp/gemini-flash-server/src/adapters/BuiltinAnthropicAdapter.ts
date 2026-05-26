@@ -38,15 +38,21 @@ export class BuiltinAnthropicAdapter implements ModelAdapter {
     const start = Date.now();
     const userPrompt = buildAnthropicUserPrompt(packet);
     try {
-      const resp = await this.client.messages.create({
+      // Newer Claude models (4-7+) reject the `temperature` param. We omit it
+      // entirely for those; the model uses its default (≈0.2 for code, low
+      // enough for our deterministic-output need).
+      const isNewSeries = /claude-(opus|sonnet|haiku)-4-[6-9]/i.test(this.modelConfig.model_name)
+                       || /claude-(opus|sonnet|haiku)-[5-9]-/i.test(this.modelConfig.model_name);
+      const req: any = {
         model: this.modelConfig.model_name,
         max_tokens: packet.budget.maxOutputTokens,
-        temperature: 0.2,
         system: this.cachedSystem
           ? [{ type: "text", text: this.cachedSystem, cache_control: { type: "ephemeral" } } as any]
           : undefined,
         messages: [{ role: "user", content: userPrompt }],
-      });
+      };
+      if (!isNewSeries) req.temperature = 0.2;
+      const resp = await this.client.messages.create(req);
 
       const text = resp.content
         .map((b) => ("text" in b ? (b as any).text : ""))

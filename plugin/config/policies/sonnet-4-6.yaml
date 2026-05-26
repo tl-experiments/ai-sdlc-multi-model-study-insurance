@@ -7,7 +7,8 @@ models:
   - id: sonnet
     adapter: builtin-anthropic
     # `claude-sonnet-4-6` labeled; substitute to latest shipping Sonnet.
-    model_name: claude-sonnet-4-20250514
+    # claude-sonnet-4-6 is GA on the Anthropic API as of 2026-05; no substitution needed.
+    model_name: claude-sonnet-4-6
     display_name: claude-sonnet-4-6
     pricing: { input: 3.00, input_cached: 0.30, output: 15.00 }
     auth: { env: ANTHROPIC_API_KEY }
